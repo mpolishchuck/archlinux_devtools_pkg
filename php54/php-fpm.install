@@ -1,0 +1,12 @@
+post_install() {
+	if [[ ! -d opt/php54/shared/run ]]; then
+		usr/bin/systemd-tmpfiles --create php54-fpm-shared.conf
+	fi
+	if [[ ! -d opt/php54/bundled/run ]]; then
+		usr/bin/systemd-tmpfiles --create php54-fpm-bundled.conf
+	fi
+}
+
+post_upgrade() {
+	post_install
+}

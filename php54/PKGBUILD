@@ -1,0 +1,375 @@
+_installdir_shared=opt/php54/shared
+_installdir_bundled=opt/php54/bundled
+pkgbase=php
+pkgname='php54-devkit-both'
+pkgver=5.4.20
+pkgrel=1
+arch=('i686' 'x86_64')
+license=('PHP')
+url='http://www.php.net'
+makedepends=('apache' 'libvpx' 'postgresql-libs' 'libldap' 'postfix'
+             'sqlite' 'unixodbc' 'net-snmp' 'libzip' 'enchant' 'file' 'freetds'
+             'libmcrypt' 'tidyhtml' 'aspell' 'libltdl' 'libpng' 'libjpeg' 'icu'
+             'curl' 'libxslt' 'openssl' 'bzip2' 'db' 'gmp' 'freetype2')
+source=("http://www.php.net/distributions/${pkgbase}-${pkgver}.tar.bz2"
+        'ftp://ftp.cac.washington.edu/imap/imap-2007f.tar.gz'
+        'php.ini.shared.patch' 'php.ini.bundled.patch' 'php-fpm.conf.in.patch'
+        'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles'
+        'php-imap-ssl-skip-test.patch')
+md5sums=('e25db5592ed14842b4239be9d990cce8'
+         '2126fd125ea26b73b20f01fcd5940369'
+         '7d2809d46e68debc48f607c93ea0ab5c'
+         '80aa613eb92b29f12878f77dafcbe384'
+         '4760a9b07d4e89f32a89ce256c8790f5'
+         'f0bf7f96921ab98f15bc76115fcde367'
+         '03a4413169a91c2d43f12f8cc547b88a'
+         '2b5d1520bcf32b45273f10441758a8ff'
+         'cdf698855f410833fbd74ed3d7ba73b2')
+
+_get_phpext() {
+	local shared_v1=""
+	local shared_v2=""
+	if [ "$1" = "shared" ]; then
+		shared_v1="=shared"
+		shared_v2="shared,"
+	fi
+
+	local _phpextensions="--enable-bcmath${shared_v1} \
+		--enable-calendar${shared_v1} \
+		--enable-dba${shared_v1} \
+		--enable-exif${shared_v1} \
+		--enable-ftp${shared_v1} \
+		--enable-gd-native-ttf \
+		--enable-intl=shared \
+		--enable-mbstring${shared_v1} \
+		--enable-phar \
+		--enable-posix${shared_v1} \
+		--enable-shmop${shared_v1} \
+		--enable-soap${shared_v1} \
+		--enable-sockets${shared_v1} \
+		--enable-sysvmsg${shared_v1} \
+		--enable-sysvsem${shared_v1} \
+		--enable-sysvshm${shared_v1} \
+		--enable-zip${shared_v1} \
+		--with-bz2${shared_v1} \
+		--with-curl${shared_v1} \
+		--with-db4=/usr \
+		--with-enchant=${shared_v2}/usr \
+		--with-fpm-systemd \
+		--with-freetype-dir=${shared_v2}/usr \
+		--with-gd${shared_v1} \
+		--with-gdbm${shared_v1} \
+		--with-gettext${shared_v1} \
+		--with-gmp${shared_v1} \
+		--with-iconv${shared_v1} \
+		--with-icu-dir=/usr \
+		--with-openssl=shared,/usr \
+		--with-imap=${shared_v2}../imap-build/ \
+		--with-imap-ssl \
+		--with-jpeg-dir=${shared_v2}/usr \
+		--with-vpx-dir=${shared_v2}/usr \
+		--with-ldap${shared_v1} \
+		--with-ldap-sasl \
+		--with-mcrypt${shared_v1} \
+		--with-mhash${shared_v1} \
+		--with-mssql${shared_v1} \
+		--with-mysql-sock=/run/mysqld/mysqld.sock \
+		--with-mysql=${shared_v2}mysqlnd \
+		--with-mysqli=${shared_v2}mysqlnd \
+		--with-pcre-regex=/usr \
+		--with-pdo-mysql=${shared_v2}mysqlnd \
+		--with-pdo-odbc=${shared_v2}unixODBC,/usr \
+		--with-pdo-pgsql${shared_v1} \
+		--with-pdo-sqlite=${shared_v2}/usr \
+		--with-pgsql${shared_v1} \
+		--with-png-dir=${shared_v2}/usr \
+		--with-pspell${shared_v1} \
+		--with-regex=php \
+		--with-snmp${shared_v1} \
+		--with-sqlite3=${shared_v2}/usr \
+		--with-tidy${shared_v1} \
+		--with-unixODBC=${shared_v2}/usr \
+		--with-xmlrpc${shared_v1} \
+		--with-xsl${shared_v1} \
+		--with-zlib \
+		"
+	echo ${_phpextensions}
+}
+
+prepare() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+
+	mkdir -p ${srcdir}/backup
+	cp ${srcdir}/${pkgbase}-${pkgver}/php.ini-development ${srcdir}/${pkgbase}-${pkgver}/php.ini-development-shared
+	cp ${srcdir}/${pkgbase}-${pkgver}/php.ini-development ${srcdir}/${pkgbase}-${pkgver}/php.ini-development-bundled
+	patch -p1 -i ${srcdir}/php.ini.shared.patch
+	patch -p1 -i ${srcdir}/php.ini.bundled.patch
+	sed "s:@~INSTALL_DIR~@:${_installdir_shared}:g" -i ${srcdir}/${pkgbase}-${pkgver}/php.ini-development-shared
+	sed "s:@~INSTALL_DIR~@:${_installdir_bundled}:g" -i ${srcdir}/${pkgbase}-${pkgver}/php.ini-development-bundled
+	cp ${srcdir}/${pkgbase}-${pkgver}/sapi/fpm/php-fpm.conf.in ${srcdir}/backup/
+
+	patch -p1 -i ${srcdir}/php-imap-ssl-skip-test.patch
+
+	mkdir ${srcdir}/assets-shared
+	cp -L ${srcdir}/logrotate.d.php-fpm ${srcdir}/assets-shared/
+	sed "s:@INSTALL_DIR@:${_installdir_shared}:g" -i ${srcdir}/assets-shared/logrotate.d.php-fpm
+	sed "s:@BUILD_TYPE@:shared:g" -i ${srcdir}/assets-shared/logrotate.d.php-fpm
+	cp -L ${srcdir}/php-fpm.service ${srcdir}/assets-shared/
+	sed "s:@INSTALL_DIR@:${_installdir_shared}:g" -i ${srcdir}/assets-shared/php-fpm.service
+	cp -L ${srcdir}/php-fpm.tmpfiles ${srcdir}/assets-shared/
+	sed "s:@INSTALL_DIR@:${_installdir_shared}:g" -i ${srcdir}/assets-shared/php-fpm.tmpfiles
+
+	mkdir ${srcdir}/assets-bundled
+	cp -L ${srcdir}/logrotate.d.php-fpm ${srcdir}/assets-bundled/
+	sed "s:@INSTALL_DIR@:${_installdir_bundled}:g" -i ${srcdir}/assets-bundled/logrotate.d.php-fpm
+	sed "s:@BUILD_TYPE@:bundled:g" -i ${srcdir}/assets-bundled/logrotate.d.php-fpm
+	cp -L ${srcdir}/php-fpm.service ${srcdir}/assets-bundled/
+	sed "s:@INSTALL_DIR@:${_installdir_bundled}:g" -i ${srcdir}/assets-bundled/php-fpm.service
+	cp -L ${srcdir}/php-fpm.tmpfiles ${srcdir}/assets-bundled/
+	sed "s:@INSTALL_DIR@:${_installdir_bundled}:g" -i ${srcdir}/assets-bundled/php-fpm.tmpfiles
+}
+
+build() {
+	# IMAP
+	sed \
+	    -e "s:-g -fno-omit-frame-pointer -O6:\${CFLAGS}:" \
+	    -e "s:SSLDIR=/usr/local/ssl:SSLDIR=/usr:" \
+	    -e "s:SSLCERTS=\$(SSLDIR)/certs:SSLCERTS=/etc/ssl/certs:" \
+	    -i ${srcdir}/imap-2007f/src/osdep/unix/Makefile
+	cd ${srcdir}/imap-2007f
+	if [ "$CARCH" == "x86_64" ]; then
+	    yes "y" | make lnp SPECIALAUTHENTICATORS=ssl SSLTYPE=unix EXTRACFLAGS="${CFLAGS} -fPIC"
+	else
+	    yes "y" | make lnp SPECIALAUTHENTICATORS=ssl SSLTYPE=unix
+	fi
+	mkdir -p ${srcdir}/imap-build/{include,lib}
+	cp c-client/*.h ${srcdir}/imap-build/include/
+	cp c-client/c-client.a ${srcdir}/imap-build/lib/
+	cp c-client/c-client.a ${srcdir}/imap-build/lib/libc-client.a
+
+	# PHP shared
+	local _phpconfig="--srcdir=${srcdir}/${pkgbase}-${pkgver} \
+		--disable-rpath \
+		--prefix=/${_installdir_shared} \
+		--with-config-file-path=/${_installdir_shared}/etc \
+		--with-config-file-scan-dir=/${_installdir_shared}/etc/php.ini.d \
+		--with-layout=GNU \
+		--without-pear \
+		"
+
+	local _phpextensions=$(_get_phpext shared)
+
+	EXTENSION_DIR=/${_installdir_shared}/lib/extensions
+	export EXTENSION_DIR
+	PEAR_INSTALLDIR=/${_installdir_shared}/pear
+	export PEAR_INSTALLDIR
+
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	cp ${srcdir}/backup/php-fpm.conf.in sapi/fpm/
+	patch -p0 -i ${srcdir}/php-fpm.conf.in.patch
+	sed "s:@~INSTALL_DIR~@:${_installdir_shared}:g" -i ${srcdir}/${pkgbase}-${pkgver}/sapi/fpm/php-fpm.conf.in
+
+	# php
+	[ ! -d "${srcdir}/build-php-shared" ] && mkdir ${srcdir}/build-php-shared
+	cd ${srcdir}/build-php-shared
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cgi \
+		--with-readline \
+		--enable-pcntl \
+		${_phpextensions}
+	make
+
+	# cgi and fcgi
+	# reuse the previous run; this will save us a lot of time
+	[ ! -d "${srcdir}/build-cgi-shared" ] && cp -a ${srcdir}/build-php-shared ${srcdir}/build-cgi-shared
+	cd ${srcdir}/build-cgi-shared
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cli \
+		--enable-cgi \
+		${_phpextensions}
+	make
+
+	# apache
+	[ ! -d "${srcdir}/build-apache-shared" ] && cp -a ${srcdir}/build-php-shared ${srcdir}/build-apache-shared
+	cd ${srcdir}/build-apache-shared
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cli \
+		--with-apxs2 \
+		${_phpextensions}
+	make
+
+	# fpm
+	[ ! -d "${srcdir}/build-fpm-shared" ] && cp -a ${srcdir}/build-php-shared ${srcdir}/build-fpm-shared
+	cd ${srcdir}/build-fpm-shared
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cli \
+		--enable-fpm \
+		--with-fpm-user=http \
+		--with-fpm-group=http \
+		${_phpextensions}
+	make
+
+	# pear
+	[ ! -d "${srcdir}/build-pear-shared" ] && cp -a ${srcdir}/build-php-shared ${srcdir}/build-pear-shared
+	cd ${srcdir}/build-pear-shared
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cgi \
+		--with-readline \
+		--enable-pcntl \
+		--with-pear=/${_installdir_shared}/pear \
+		${_phpextensions}
+	make
+
+	# PHP bundled
+	local _phpconfig="--srcdir=${srcdir}/${pkgbase}-${pkgver} \
+		--disable-rpath \
+		--prefix=/${_installdir_bundled} \
+		--with-config-file-path=/${_installdir_bundled}/etc \
+		--with-config-file-scan-dir=/${_installdir_bundled}/etc/php.ini.d \
+		--with-layout=GNU \
+		--without-pear \
+		"
+
+	local _phpextensions=$(_get_phpext bundled)
+
+	EXTENSION_DIR=/${_installdir_bundled}/lib/extensions
+	export EXTENSION_DIR
+	PEAR_INSTALLDIR=/${_installdir_bundled}/pear
+	export PEAR_INSTALLDIR
+
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	cp ${srcdir}/backup/php-fpm.conf.in sapi/fpm/
+	patch -p0 -i ${srcdir}/php-fpm.conf.in.patch
+	sed "s:@~INSTALL_DIR~@:${_installdir_bundled}:g" -i ${srcdir}/${pkgbase}-${pkgver}/sapi/fpm/php-fpm.conf.in
+
+	# php
+	[ ! -d "${srcdir}/build-php-bundled" ] && mkdir ${srcdir}/build-php-bundled
+	cd ${srcdir}/build-php-bundled
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cgi \
+		--with-readline \
+		--enable-pcntl \
+		${_phpextensions}
+	make
+
+	# cgi and fcgi
+	# reuse the previous run; this will save us a lot of time
+	[ ! -d "${srcdir}/build-cgi-bundled" ] && cp -a ${srcdir}/build-php-bundled ${srcdir}/build-cgi-bundled
+	cd ${srcdir}/build-cgi-bundled
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cli \
+		--enable-cgi \
+		${_phpextensions}
+	make
+
+	# apache
+	[ ! -d "${srcdir}/build-apache-bundled" ] && cp -a ${srcdir}/build-php-bundled ${srcdir}/build-apache-bundled
+	cd ${srcdir}/build-apache-bundled
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cli \
+		--with-apxs2 \
+		${_phpextensions}
+	make
+
+	# fpm
+	[ ! -d "${srcdir}/build-fpm-bundled" ] && cp -a ${srcdir}/build-php-bundled ${srcdir}/build-fpm-bundled
+	cd ${srcdir}/build-fpm-bundled
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cli \
+		--enable-fpm \
+		--with-fpm-user=http \
+		--with-fpm-group=http \
+		${_phpextensions}
+	make
+
+	# pear
+	[ ! -d "${srcdir}/build-pear-bundled" ] && cp -a ${srcdir}/build-php-bundled ${srcdir}/build-pear-bundled
+	cd ${srcdir}/build-pear-bundled
+	../${pkgbase}-${pkgver}/configure ${_phpconfig} \
+		--disable-cgi \
+		--with-readline \
+		--enable-pcntl \
+		--with-pear=/${_installdir_bundled}/pear \
+		${_phpextensions}
+	make
+}
+
+package() {
+	pkgdesc='An HTML-embedded scripting language'
+	depends=('pcre' 'libxml2' 'bzip2' 'curl' 'enchant' 'libpng' 'libjpeg' 'freetype2' 'icu' 'libldap' 'libmcrypt' 'libltdl' 'freetds' 'unixodbc' 'postgresql-libs' 'aspell' 'net-snmp' 'sqlite' 'tidyhtml' 'libxslt' 'systemd' 'libvpx')
+	backup=(
+		"${_installdir_shared}/etc/php.ini"
+		"${_installdir_shared}/etc/pear.conf"
+		"${_installdir_shared}/etc/php-fpm.conf"
+		"${_installdir_bundled}/etc/php.ini"
+		"${_installdir_bundled}/etc/pear.conf"
+		"${_installdir_bundled}/etc/php-fpm.conf"
+	)
+	install="php-fpm.install"
+
+	EXTENSION_DIR=/${_installdir_shared}/lib/extensions
+	export EXTENSION_DIR
+	PEAR_INSTALLDIR=/${_installdir_shared}/pear
+	export PEAR_INSTALLDIR
+
+	cd ${srcdir}/build-php-shared
+	make -j1 INSTALL_ROOT=${pkgdir} install
+	install -d -m755 ${pkgdir}/${_installdir_shared}/pear
+	# install php.ini
+	install -D -m644 ${srcdir}/${pkgbase}-${pkgver}/php.ini-development-shared ${pkgdir}/${_installdir_shared}/etc/php.ini
+	install -d -m755 ${pkgdir}/${_installdir_shared}/etc/php.ini.d/
+
+	install -D -m755 ${srcdir}/build-apache-shared/libs/libphp5.so ${pkgdir}/usr/lib/httpd/modules/libphp54-shared.so
+	install -D -m755 ${srcdir}/build-cgi-shared/sapi/cgi/php-cgi ${pkgdir}/${_installdir_shared}/bin/php-cgi
+
+	install -D -m755 ${srcdir}/build-fpm-shared/sapi/fpm/php-fpm ${pkgdir}/${_installdir_shared}/bin/php-fpm
+	install -D -m644 ${srcdir}/build-fpm-shared/sapi/fpm/php-fpm.8 ${pkgdir}/${_installdir_shared}/man/man8/php-fpm.8
+	install -D -m644 ${srcdir}/build-fpm-shared/sapi/fpm/php-fpm.conf ${pkgdir}/${_installdir_shared}/etc/php-fpm.conf
+	install -d -m755 ${pkgdir}/${_installdir_shared}/etc/fpm.d
+	install -D -m644 ${srcdir}/assets-shared/php-fpm.tmpfiles ${pkgdir}/usr/lib/tmpfiles.d/php54-fpm-shared.conf
+	install -D -m644 ${srcdir}/assets-shared/php-fpm.service ${pkgdir}/usr/lib/systemd/system/php54-fpm-shared.service
+	install -D -m644 ${srcdir}/assets-shared/logrotate.d.php-fpm ${pkgdir}/etc/logrotate.d/php54-fpm-shared
+	install -d -m755 ${pkgdir}/${_installdir_shared}/var/log
+
+	cd ${srcdir}/build-pear-shared
+	make install-pear INSTALL_ROOT=${pkgdir}
+	rm -rf ${pkgdir}/.{channels,depdb,depdblock,filemap,lock,registry}
+
+	# remove static modules
+	rm -f ${pkgdir}/${_installdir_shared}/lib/extensions/*.a
+	# remove empty directory
+	rmdir ${pkgdir}/${_installdir_shared}/include/php/include
+
+	EXTENSION_DIR=/${_installdir_bundled}/lib/extensions
+	export EXTENSION_DIR
+	PEAR_INSTALLDIR=/${_installdir_bundled}/pear
+	export PEAR_INSTALLDIR
+
+	cd ${srcdir}/build-php-bundled
+	make -j1 INSTALL_ROOT=${pkgdir} install
+	install -d -m755 ${pkgdir}/${_installdir_bundled}/pear
+	# install php.ini
+	install -D -m644 ${srcdir}/${pkgbase}-${pkgver}/php.ini-development-bundled ${pkgdir}/${_installdir_bundled}/etc/php.ini
+	install -d -m755 ${pkgdir}/${_installdir_bundled}/etc/php.ini.d/
+
+	install -D -m755 ${srcdir}/build-apache-bundled/libs/libphp5.so ${pkgdir}/usr/lib/httpd/modules/libphp54-bundled.so
+	install -D -m755 ${srcdir}/build-cgi-bundled/sapi/cgi/php-cgi ${pkgdir}/${_installdir_bundled}/bin/php-cgi
+
+	install -D -m755 ${srcdir}/build-fpm-bundled/sapi/fpm/php-fpm ${pkgdir}/${_installdir_bundled}/bin/php-fpm
+	install -D -m644 ${srcdir}/build-fpm-bundled/sapi/fpm/php-fpm.8 ${pkgdir}/${_installdir_bundled}/man/man8/php-fpm.8
+	install -D -m644 ${srcdir}/build-fpm-bundled/sapi/fpm/php-fpm.conf ${pkgdir}/${_installdir_bundled}/etc/php-fpm.conf
+	install -d -m755 ${pkgdir}/${_installdir_bundled}/etc/fpm.d
+	install -D -m644 ${srcdir}/assets-bundled/php-fpm.tmpfiles ${pkgdir}/usr/lib/tmpfiles.d/php54-fpm-bundled.conf
+	install -D -m644 ${srcdir}/assets-bundled/php-fpm.service ${pkgdir}/usr/lib/systemd/system/php54-fpm-bundled.service
+	install -D -m644 ${srcdir}/assets-bundled/logrotate.d.php-fpm ${pkgdir}/etc/logrotate.d/php54-fpm-bundled
+	install -d -m755 ${pkgdir}/${_installdir_bundled}/var/log
+
+	cd ${srcdir}/build-pear-bundled
+	make install-pear INSTALL_ROOT=${pkgdir}
+	rm -rf ${pkgdir}/.{channels,depdb,depdblock,filemap,lock,registry}
+
+	# remove static modules
+	rm -f ${pkgdir}/${_installdir_bundled}/lib/extensions/*.a
+	# remove empty directory
+	rmdir ${pkgdir}/${_installdir_bundled}/include/php/include
+}

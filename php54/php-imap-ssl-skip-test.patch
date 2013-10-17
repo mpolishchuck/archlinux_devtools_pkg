@@ -1,0 +1,34 @@
+--- php-5.4.20.a/configure	2013-09-18 08:57:45.000000000 +0300
++++ php-5.4.20.b/configure	2013-10-16 16:33:49.000000000 +0300
+@@ -52525,7 +52525,7 @@
+     }
+ 
+ _ACEOF
+-if ac_fn_c_try_run "$LINENO"; then :
++#if ac_fn_c_try_run "$LINENO"; then :
+ 
+     LIBS=$old_LIBS
+ 
+@@ -52533,16 +52533,16 @@
+ $as_echo "yes" >&6; }
+ 
+ 
+-else
++#else
+ 
+-    LIBS=$old_LIBS
++#    LIBS=$old_LIBS
+ 
+-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+-      as_fn_error "build test failed. Please check the config.log for details." "$LINENO" 5
++#      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++#$as_echo "no" >&6; }
++#      as_fn_error "build test failed. Please check the config.log for details." "$LINENO" 5
+ 
+ 
+-fi
++#fi
+ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+   conftest.$ac_objext conftest.beam conftest.$ac_ext
+ fi

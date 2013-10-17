@@ -1,0 +1,8 @@
+/@INSTALL_DIR@/var/log/php-fpm.log {
+	missingok
+	notifempty
+	delaycompress
+	postrotate
+		systemctl reload php54-fpm-@BUILD_TYPE@.service || true
+	endscript
+}
