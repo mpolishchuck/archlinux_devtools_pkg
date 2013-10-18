@@ -1,3 +1,5 @@
+# $Id$
+
 _installdir_shared=opt/php53/shared
 _installdir_bundled=opt/php53/bundled
 pkgbase=php
