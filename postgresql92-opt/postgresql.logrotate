@@ -1,0 +1,4 @@
+/var/log/postgresql92-opt.log {
+   copytruncate
+   missingok
+}

@@ -1,0 +1,26 @@
+[Unit]
+Description=PostgreSQL database server
+After=network.target
+
+[Service]
+Type=forking
+TimeoutSec=120
+User=postgres
+Group=postgres
+
+Environment=PGROOT=/opt/postgresql92
+
+SyslogIdentifier=postgres
+PIDFile=/opt/postgresql92/data/postmaster.pid
+
+ExecStartPre=/opt/postgresql92/bin/postgresql-check-db-dir ${PGROOT}/data
+ExecStart= /opt/postgresql92/bin/pg_ctl -s -D ${PGROOT}/data start -w -t 120 -l /var/log/postgresql92-opt.log
+ExecReload=/opt/postgresql92/bin/pg_ctl -s -D ${PGROOT}/data reload
+ExecStop=  /opt/postgresql92/bin/pg_ctl -s -D ${PGROOT}/data stop -m fast
+
+# Due to PostgreSQL's use of shared memory, OOM killer is often overzealous in
+# killing Postgres, so adjust it downward
+OOMScoreAdjust=-200
+
+[Install]
+WantedBy=multi-user.target

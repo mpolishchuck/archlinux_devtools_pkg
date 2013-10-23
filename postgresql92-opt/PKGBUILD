@@ -1,0 +1,76 @@
+# $Id$
+# Maintainer: Dan McGee <dan@archlinux.org>
+
+pkgname=postgresql92-opt
+pkgver=9.2.5
+_majorver=${pkgver%.*}
+pkgrel=1
+arch=('i686' 'x86_64')
+url="http://www.postgresql.org/"
+license=('custom:PostgreSQL')
+makedepends=('krb5' 'libxml2' 'python2' 'perl' 'tcl>=8.6.0' 'openssl>=1.0.0')
+source=(http://ftp.postgresql.org/pub/source/v${pkgver}/postgresql-${pkgver}.tar.bz2
+        postgresql-run-socket.patch
+        postgresql.logrotate
+        postgresql.service postgresql.tmpfiles.conf postgresql-check-db-dir)
+
+prepare() {
+  cd "${srcdir}/postgresql-${pkgver}"
+  patch -Np1 < ../postgresql-run-socket.patch
+}
+
+build() {
+  cd "${srcdir}/postgresql-${pkgver}"
+
+  ./configure --prefix=/opt/postgresql92 \
+  --with-krb5 \
+  --with-libxml \
+  --with-openssl \
+  --with-perl \
+  --with-python PYTHON=/usr/bin/python2 \
+  --with-tcl \
+  --with-pam \
+  --with-system-tzdata=/usr/share/zoneinfo \
+  --enable-nls \
+  --enable-thread-safety
+
+  make world
+}
+
+package() {
+  pkgdesc="A sophisticated object-relational DBMS"
+  backup=('etc/logrotate.d/postgresql92-opt')
+  depends=('krb5' 'libxml2' 'readline>=6.0' 'openssl>=1.0.0')
+  optdepends=('python2: for PL/Python support'
+              'perl: for PL/Perl support'
+              'tcl: for PL/Tcl support'
+              'postgresql-old-upgrade: upgrade from previous major version using pg_upgrade')
+  install=postgresql.install
+
+  cd "${srcdir}/postgresql-${pkgver}"
+
+  # install
+  make DESTDIR="${pkgdir}" install
+  make -C contrib DESTDIR="${pkgdir}" install
+  make -C doc/src/sgml DESTDIR="${pkgdir}" install-man
+  make -C doc/src/sgml DESTDIR="${pkgdir}" install-html
+  #chown -R root:root "${pkgdir}/usr/share/doc/postgresql/html/"
+
+  # install license
+  install -D -m644 COPYRIGHT "${pkgdir}/opt/postgresql92/share/LICENSE"
+
+  install -D -m644 "${srcdir}/postgresql.tmpfiles.conf" \
+    "${pkgdir}/usr/lib/tmpfiles.d/postgresql92-opt.conf"
+  install -D -m644 "${srcdir}/postgresql.service" \
+    "${pkgdir}/usr/lib/systemd/system/postgresql92-opt.service"
+  install -D -m755 "${srcdir}/postgresql-check-db-dir" \
+    "${pkgdir}/opt/postgresql92/bin/postgresql-check-db-dir"
+  install -D -m644 "${srcdir}/postgresql.logrotate" \
+    "${pkgdir}/etc/logrotate.d/postgresql92-opt"
+}
+md5sums=('e8438e0ed5e6371741be7697886e7340'
+         '71c819ebf5e199ffe3a334913d367b9b'
+         'b597fa32be7a917414d504ddebccf94f'
+         '3b911fbf944be7029eb85e1c96a47586'
+         '1db45c2a07038bb879e66f4102971e76'
+         '505e0e4abfc746cae9558584d471a03c')
