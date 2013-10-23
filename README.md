@@ -1,4 +1,4 @@
-archlinux_webdev_tools_pkg
+archlinux_devtools_pkg
 ==========================
 
 Web Development tools PKGBUILDs for ArchLinux
