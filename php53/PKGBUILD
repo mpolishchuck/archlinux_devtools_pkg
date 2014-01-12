@@ -4,7 +4,7 @@ _installdir_shared=opt/php53/shared
 _installdir_bundled=opt/php53/bundled
 pkgbase=php
 pkgname='php53-devkit-both'
-pkgver=5.3.27
+pkgver=5.3.28
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('PHP')
@@ -13,12 +13,12 @@ makedepends=('apache' 'postgresql-libs' 'libldap' 'postfix'
              'sqlite' 'unixodbc' 'net-snmp' 'libzip' 'enchant' 'file' 'freetds'
              'libmcrypt' 'tidyhtml' 'aspell' 'libltdl' 'libpng' 'libjpeg' 'icu'
              'curl' 'libxslt' 'openssl' 'bzip2' 'db' 'gmp' 'freetype2')
-source=("http://www.php.net/distributions/${pkgbase}-${pkgver}.tar.xz"
+source=("http://www.php.net/distributions/${pkgbase}-${pkgver}.tar.gz"
         'ftp://ftp.cac.washington.edu/imap/imap-2007f.tar.gz'
         'php.ini.shared.patch' 'php.ini.bundled.patch' 'php-fpm.conf.in.patch'
         'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles'
-        'php-imap-ssl-skip-test.patch')
-md5sums=('eb45fa47470f9e697b7ee8e65ee9bb19'
+        'php-imap-ssl-skip-test.patch' 'php-freeetype-location.patch')
+md5sums=('eec3fb5ccb6d8c238f973d306bebb00e'
          '2126fd125ea26b73b20f01fcd5940369'
          '4b3f3ea3c50a9ee5df7e2921f9decb60'
          '5e6e38e90f333d1c9b7d0ea34d6006db'
@@ -26,7 +26,8 @@ md5sums=('eb45fa47470f9e697b7ee8e65ee9bb19'
          '09660267bdef1f799d7cb0f7eb47abdd'
          '03a4413169a91c2d43f12f8cc547b88a'
          '2b5d1520bcf32b45273f10441758a8ff'
-         '052de1efafca2828fcfa08ae3026cfa6')
+         '052de1efafca2828fcfa08ae3026cfa6'
+         '8a910a743e516fef180968140e04bf23')
 
 _get_phpext() {
 	local shared_v1=""
@@ -118,6 +119,7 @@ prepare() {
 	cp ${srcdir}/${pkgbase}-${pkgver}/sapi/fpm/php-fpm.conf.in ${srcdir}/backup/
 
 	patch -p1 -i ${srcdir}/php-imap-ssl-skip-test.patch
+	patch -p1 -i ${srcdir}/php-freeetype-location.patch
 
 	mkdir ${srcdir}/assets-shared
 	cp -L ${srcdir}/logrotate.d.php-fpm ${srcdir}/assets-shared/
