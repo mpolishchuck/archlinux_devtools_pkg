@@ -1,0 +1,16 @@
+[Unit]
+Description=MySQL database server
+After=syslog.target
+
+[Service]
+User=mysql
+Group=mysql
+
+ExecStart=/opt/mysql55/bin/mysqld --pid-file=/opt/mysql55/run/mysqld.pid
+ExecStartPost=/opt/mysql55/bin/mysqld-post
+
+Restart=always
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
