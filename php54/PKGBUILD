@@ -4,7 +4,7 @@ _installdir_shared=opt/php54/shared
 _installdir_bundled=opt/php54/bundled
 pkgbase=php
 pkgname='php54-devkit-both'
-pkgver=5.4.26
+pkgver=5.4.29
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('PHP')
@@ -18,11 +18,11 @@ source=("http://www.php.net/distributions/${pkgbase}-${pkgver}.tar.bz2"
         'php.ini.shared.patch' 'php.ini.bundled.patch' 'php-fpm.conf.in.patch'
         'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles'
         'php-imap-ssl-skip-test.patch')
-md5sums=('979e17b5492ce9c65a3c37f22c7c9655'
+md5sums=('64326cef257e5af17c366fefab136e53'
          '2126fd125ea26b73b20f01fcd5940369'
          '7d2809d46e68debc48f607c93ea0ab5c'
          '80aa613eb92b29f12878f77dafcbe384'
-         '4760a9b07d4e89f32a89ce256c8790f5'
+         'f6a1c65c5446c3d3cc8a905f302efce5'
          'f0bf7f96921ab98f15bc76115fcde367'
          '03a4413169a91c2d43f12f8cc547b88a'
          '2b5d1520bcf32b45273f10441758a8ff'
