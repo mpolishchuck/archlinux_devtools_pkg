@@ -4,8 +4,8 @@ _installdir_shared=opt/php53/shared
 _installdir_bundled=opt/php53/bundled
 pkgbase=php
 pkgname='php53-devkit-both'
-pkgver=5.3.28
-pkgrel=2
+pkgver=5.3.29
+pkgrel=1
 arch=('i686' 'x86_64')
 license=('PHP')
 url='http://www.php.net'
@@ -18,11 +18,11 @@ source=("http://www.php.net/distributions/${pkgbase}-${pkgver}.tar.gz"
         'php.ini.shared.patch' 'php.ini.bundled.patch' 'php-fpm.conf.in.patch'
         'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles'
         'php-imap-ssl-skip-test.patch' 'php-freeetype-location.patch')
-md5sums=('eec3fb5ccb6d8c238f973d306bebb00e'
+md5sums=('ebfa96ea636b2a7ece71e78ad116a338'
          '2126fd125ea26b73b20f01fcd5940369'
          '4b3f3ea3c50a9ee5df7e2921f9decb60'
          '5e6e38e90f333d1c9b7d0ea34d6006db'
-         '4760a9b07d4e89f32a89ce256c8790f5'
+         'f6a1c65c5446c3d3cc8a905f302efce5'
          '09660267bdef1f799d7cb0f7eb47abdd'
          '03a4413169a91c2d43f12f8cc547b88a'
          '2b5d1520bcf32b45273f10441758a8ff'
