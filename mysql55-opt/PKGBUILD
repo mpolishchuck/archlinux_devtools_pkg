@@ -6,7 +6,7 @@ pkgname=mysql55-opt
 _pkgname=mysql
 true && pkgname=('libmysqlclient55-opt' 'mysql-clients55-opt' 'mysql55-opt')
 pkgbase=mysql55-opt
-pkgver=5.5.36
+pkgver=5.5.45
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -17,7 +17,7 @@ source=(http://ftp.gwdg.de/pub/misc/mysql/Downloads/MySQL-5.5/${_pkgname}-${pkgv
         mysqld-post.sh
         mysqld-tmpfile.conf
         mysqld55-opt.service)
-sha256sums=('30f2cde5bf854cf1ef74ecd1ae2f6e5e9ec7d11eb5b50643e1aa91c911c75897'
+sha256sums=('744efd3c39265b5fdeebd25f58ecb34a6eb06e02d9ec2febd3164942f2c89332'
             'SKIP'
             '7203200662793368481e790f13ac65e22e8e29525bc67d886ec9601d543e4100'
             '6a14087a47365091b0ddb3d5d4245ab161f0036e7658d0c8e063644d0a6ff283'
