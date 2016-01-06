@@ -1,0 +1,8 @@
+/@~INSTALL_DIR~@/var/log/php-fpm.log {
+	missingok
+	notifempty
+	delaycompress
+	postrotate
+		/bin/kill -SIGUSR1 `cat /@~INSTALL_DIR~@/run/php-fpm.pid 2>/dev/null` 2>/dev/null || true
+	endscript
+}

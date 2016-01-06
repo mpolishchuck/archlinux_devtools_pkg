@@ -1,0 +1,60 @@
+# Contributor: Sebastien Duquette <ekse.0x@gmail.com>
+# Contributor: Martin Kozák <martinkozak@martinkozak.net>
+
+_installdir="opt/php56"
+
+pkgname=php56-opt-xhprof
+pkgver=0.9.4
+pkgrel=1
+pkgdesc="A Hierarchical Profiler for PHP"
+arch=('i686' 'x86_64')
+url="http://pecl.php.net/package/xhprof"
+license=('Apache')
+depends=('php56-opt')
+makedepends=()
+optdepends=('graphviz: to generate callgraphs in reports')
+backup=("${_installdir}/etc/conf.d/xhprof.ini")
+options=()
+source=("http://pecl.php.net/get/xhprof-$pkgver.tgz")
+md5sums=('ab4062a7337e3bdaa2fd7065a7942b8d')
+
+prepare() {
+  cd "$srcdir/xhprof-$pkgver/extension/"
+
+  "/${_installdir}/bin/phpize" || return 1
+  ./configure --with-php-config="/${_installdir}/bin/php-config"
+}
+
+build() {
+  cd "$srcdir/xhprof-$pkgver/extension/"
+  make || return 1
+}
+
+package() { 
+  cd "$srcdir/xhprof-$pkgver/extension/"
+  make INSTALL_ROOT="$pkgdir/" install
+  echo ';extension=xhprof.so' > xhprof.ini
+  install -D -m644 xhprof.ini "$pkgdir/${_installdir}/etc/conf.d/xhprof.ini"
+
+  # HTML Report interface
+  cd ".."
+  mkdir -p $pkgdir/${_installdir}/share/webapps/xhprof/
+  cp -ra xhprof_html $pkgdir/${_installdir}/share/webapps/xhprof/
+  cp -ra xhprof_lib $pkgdir/${_installdir}/share/webapps/xhprof/
+
+  # apache
+  mkdir -p $pkgdir/${_installdir}/etc/httpd/conf/extra/
+  cat >$pkgdir/${_installdir}/etc/httpd/conf/extra/xhprof.conf <<EOF
+        Alias /xhprof "/${_installdir}/share/webapps/xhprof/xhprof_html"
+        <Directory "/${_installdir}/share/webapps/xhprof/xhprof_html">
+                AllowOverride All
+                Options FollowSymlinks
+                Order allow,deny
+                Allow from all
+                php_admin_value open_basedir "/srv/:/tmp/:/usr/share/webapps/:/etc/webapps:/usr/share/pear/:/${_installdir}/share/webapps/"
+        </Directory>
+EOF
+
+}
+
+#Y vim:set ts=2 sw=2 et:

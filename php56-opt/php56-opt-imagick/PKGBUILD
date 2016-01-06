@@ -1,0 +1,32 @@
+# Contributor: Spencer Rinehart <anubis@overthemonkey.com>
+
+_installdir="opt/php56"
+
+pkgname=php56-opt-imagick
+_extname=imagick
+pkgver=3.1.2
+pkgrel=1
+pkgdesc="PHP extension for IMagick"
+arch=('i686' 'x86_64')
+url="http://pecl.php.net/package/${_extname}"
+license=('PHP')
+depends=('php56-opt' 'imagemagick>=6.2.4')
+backup=("${_installdir}/etc/conf.d/${_extname}.ini")
+source=("http://pecl.php.net/get/${_extname}-${pkgver}.tgz")
+md5sums=('f2fd71b026debe056e0ec8d76c2ffe94')
+
+build() {
+  cd "${_extname}-${pkgver}"
+
+  "/${_installdir}/bin/phpize"
+  ./configure --with-php-config="/${_installdir}/bin/php-config"
+  make
+}
+
+package() {
+  cd "${_extname}-${pkgver}"
+
+  make INSTALL_ROOT="${pkgdir}" install
+  echo "extension=${_extname}.so" > "${_extname}.ini"
+  install -D -m644 "${_extname}.ini" "${pkgdir}/${_installdir}/etc/conf.d/${_extname}.ini"
+}
