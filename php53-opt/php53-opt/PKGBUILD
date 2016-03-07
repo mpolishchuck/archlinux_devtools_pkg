@@ -1,0 +1,434 @@
+# $Id$
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Pierre Schmitz <pierre@archlinux.de>
+
+_installdir=opt/php53
+
+_edit_installdir() {
+    sed "s:@~INSTALL_DIR~@:${_installdir}:g" -i "$1"
+}
+
+pkgbase=php53-opt
+_pkgbase=${pkgbase%53-opt}
+pkgname=("${pkgbase}"
+         "${pkgbase}-cgi"
+         "${pkgbase}-apache"
+         "${pkgbase}-fpm"
+         "${pkgbase}-embed"
+         "${pkgbase}-pear"
+         "${pkgbase}-enchant"
+         "${pkgbase}-gd"
+         "${pkgbase}-imap"
+         "${pkgbase}-intl"
+         "${pkgbase}-ldap"
+         "${pkgbase}-mcrypt"
+         "${pkgbase}-mssql"
+         "${pkgbase}-odbc"
+         "${pkgbase}-pgsql"
+         "${pkgbase}-pspell"
+         "${pkgbase}-snmp"
+         "${pkgbase}-sqlite"
+         "${pkgbase}-tidy"
+         "${pkgbase}-xsl")
+pkgver=5.3.29
+_suhosinver=5.3.9-0.9.10
+pkgrel=1
+arch=('i686' 'x86_64')
+license=('PHP')
+url='http://www.php.net'
+makedepends=('apache' 'c-client' 'postgresql-libs' 'libldap' 'postfix'
+             'sqlite' 'unixodbc' 'net-snmp' 'libzip' 'enchant' 'file' 'freetds'
+             'libmcrypt' 'tidyhtml' 'aspell' 'libltdl' 'libpng' 'libjpeg' 'icu'
+             'curl' 'libxslt' 'openssl' 'bzip2' 'db' 'gmp' 'freetype2' 'sed')
+source=("http://www.php.net/distributions/${_pkgbase}-${pkgver}.tar.bz2"
+        "http://download.suhosin.org/suhosin-patch-${_suhosinver}.patch.gz"
+        php.ini.patch apache.conf php-fpm.conf.in.patch
+        logrotate.d.php-fpm suhosin.patch freetype-path.patch
+        CVE-2014-3587.patch CVE-2014-3597.patch CVE-2014-3668.patch
+        CVE-2014-3669.patch CVE-2014-3670.patch curl_embedded_null.patch
+        CVE-2014-8142.patch CVE-2015-0231.patch CVE-2014-9705.patch
+        CVE-2015-0273.patch CVE-2015-2301.patch CVE-2015-2305.patch
+        CVE-2015-2783.patch CVE-2015-2787.patch CVE-2015-3330.patch
+        CVE-2015-3329.patch)
+
+build() {
+    phpconfig="--srcdir=../${_pkgbase}-${pkgver} \
+        --prefix=/${_installdir} \
+        --with-layout=GNU \
+        --with-config-file-path=/${_installdir}/etc \
+        --with-config-file-scan-dir=/${_installdir}/etc/conf.d \
+        --enable-inline-optimization \
+        --disable-debug \
+        --disable-rpath \
+        --disable-static \
+        --enable-shared \
+        --mandir=/${_installdir}/share/man \
+        --without-pear \
+        "
+
+    phpextensions="--enable-bcmath=shared \
+        --enable-calendar=shared \
+        --enable-dba=shared \
+        --enable-exif=shared \
+        --enable-ftp=shared \
+        --enable-gd-native-ttf \
+        --enable-intl=shared \
+        --enable-json=shared \
+        --enable-mbregex \
+        --enable-mbstring \
+        --enable-pdo \
+        --enable-phar=shared \
+        --enable-posix=shared \
+        --enable-session \
+        --enable-shmop=shared \
+        --enable-soap=shared \
+        --enable-sockets=shared \
+        --enable-sqlite-utf8 \
+        --enable-sysvmsg=shared \
+        --enable-sysvsem=shared \
+        --enable-sysvshm=shared \
+        --enable-xml \
+        --enable-zip=shared \
+        --with-bz2=shared \
+        --with-curl=shared \
+        --with-enchant=shared,/usr \
+        --with-freetype-dir=shared,/usr \
+        --with-gd=shared \
+        --with-gdbm=shared \
+        --with-gettext=shared \
+        --with-gmp=shared \
+        --with-iconv=shared \
+        --with-icu-dir=/usr \
+        --with-imap-ssl=shared,/usr \
+        --with-imap=shared,/usr \
+        --with-jpeg-dir=shared,/usr \
+        --with-kerberos=/usr \
+        --with-ldap=shared \
+        --with-ldap-sasl \
+        --with-mcrypt=shared \
+        --with-mhash \
+        --with-mssql=shared \
+        --with-mysql-sock=/var/run/mysqld/mysqld.sock \
+        --with-mysql=shared,mysqlnd \
+        --with-mysqli=shared,mysqlnd \
+        --with-openssl=shared \
+        --with-pcre-regex=/usr \
+        --with-pdo-mysql=shared,mysqlnd \
+        --with-pdo-odbc=shared,unixODBC,/usr \
+        --with-pdo-pgsql=shared \
+        --with-pdo-sqlite=shared,/usr \
+        --with-pgsql=shared \
+        --with-png-dir=shared,/usr \
+        --with-pspell=shared \
+        --with-regex=php \
+        --with-snmp=shared \
+        --with-sqlite3=shared,/usr \
+        --with-sqlite=shared \
+        --with-tidy=shared \
+        --with-unixODBC=shared,/usr \
+        --with-xmlrpc=shared \
+        --with-xsl=shared \
+        --with-zlib \
+        --without-db2 \
+        --without-db3 \
+        "
+
+    EXTENSION_DIR=/${_installdir}/lib/modules
+    export EXTENSION_DIR
+    PEAR_INSTALLDIR=/${_installdir}/pear
+    export PEAR_INSTALLDIR
+    
+    # -D_FORTIFY_SOURCE=2 will generate a warning, which will fail the configure script
+    unset CPPFLAGS
+
+    msg "Fix the suhosin patch"
+    patch -l -i ${srcdir}/suhosin.patch
+    sed -i 's/1997-2004/1997-2014/g' ${srcdir}/suhosin-patch-${_suhosinver}.patch
+    sed -i 's/1997-2012/1997-2014/g' ${srcdir}/suhosin-patch-${_suhosinver}.patch
+
+    cd ${srcdir}/${_pkgbase}-${pkgver}
+
+    # TODO: some doesn't apply
+    msg "Applying security patches (from Ubuntu)"
+    # patch -p1 -i ../CVE-2014-3587.patch
+    # patch -p1 -i ../CVE-2014-3597.patch
+    patch -p1 -i ../CVE-2014-3668.patch
+    patch -p1 -i ../CVE-2014-3669.patch
+    patch -p1 -i ../CVE-2014-3670.patch
+    patch -p1 -i ../curl_embedded_null.patch
+    patch -p1 -i ../CVE-2014-8142.patch
+    patch -p1 -i ../CVE-2015-0231.patch
+    patch -p1 -i ../CVE-2014-9705.patch
+    # patch -p1 -i ../CVE-2015-0273.patch
+    patch -p1 -i ../CVE-2015-2301.patch
+    patch -p1 -i ../CVE-2015-2305.patch
+    patch -p1 -i ../CVE-2015-2783.patch
+    patch -p1 -i ../CVE-2015-2787.patch
+    patch -p1 -i ../CVE-2015-3330.patch
+    patch -p1 -i ../CVE-2015-3329.patch
+
+    msg "Applying suhosin patch"
+    patch -F3 -p1 -i ${srcdir}/suhosin-patch-${_suhosinver}.patch
+
+    msg "Adjust paths"
+    patch -p0 -i ${srcdir}/php.ini.patch
+    patch -p0 -i ${srcdir}/php-fpm.conf.in.patch
+    #patch -p1 -i ${srcdir}/freetype-path.patch
+
+    # To workaround c-client linking problem
+    export IMAP_SHARED_LIBADD="-lssl"
+
+    # php
+    mkdir ${srcdir}/build-php
+    cd ${srcdir}/build-php
+    ln -s ../${_pkgbase}-${pkgver}/configure
+    ./configure ${phpconfig} \
+        --disable-cgi \
+        --with-readline \
+        --enable-pcntl \
+        ${phpextensions}
+    make
+
+    # cgi and fcgi
+    # reuse the previous run; this will save us a lot of time
+    cp -a ${srcdir}/build-php ${srcdir}/build-cgi
+    cd ${srcdir}/build-cgi
+    ./configure ${phpconfig} \
+        --disable-cli \
+        --enable-cgi \
+        ${phpextensions}
+    make
+
+    # apache
+    cp -a ${srcdir}/build-php ${srcdir}/build-apache
+    cd ${srcdir}/build-apache
+    ./configure ${phpconfig} \
+        --disable-cli \
+        --with-apxs2 \
+        ${phpextensions}
+    make
+
+    # fpm
+    cp -a ${srcdir}/build-php ${srcdir}/build-fpm
+    cd ${srcdir}/build-fpm
+    ./configure ${phpconfig} \
+        --disable-cli \
+        --enable-fpm \
+        --with-fpm-user=http \
+        --with-fpm-group=http \
+        ${phpextensions}
+    make
+
+    # embed
+    cp -a ${srcdir}/build-php ${srcdir}/build-embed
+    cd ${srcdir}/build-embed
+    ./configure ${phpconfig} \
+        --disable-cli \
+        --enable-embed=shared \
+        ${phpextensions}
+    make
+
+    # pear
+    cp -a ${srcdir}/build-php ${srcdir}/build-pear
+    cd ${srcdir}/build-pear
+    ./configure ${phpconfig} \
+        --disable-cgi \
+        --with-readline \
+        --enable-pcntl \
+        --with-pear \
+        ${phpextensions}
+    make
+}
+
+# check() {
+#     cd ${srcdir}/build-php
+#     make test
+# }
+
+package_php53-opt() {
+    pkgdesc='An HTML-embedded scripting language - Legacy 5.3 version'
+    depends=('pcre' 'libxml2' 'bzip2' 'curl')
+    backup=("${_installdir}/etc/php.ini")
+
+    cd ${srcdir}/build-php
+    make -j1 INSTALL_ROOT=${pkgdir} install
+    install -d -m755 ${pkgdir}/${_installdir}/share/pear
+    # install php.ini
+    install -D -m644 ${srcdir}/${_pkgbase}-${pkgver}/php.ini-production ${pkgdir}/${_installdir}/etc/php.ini
+    _edit_installdir ${pkgdir}/${_installdir}/etc/php.ini
+    install -d -m755 ${pkgdir}/${_installdir}/etc/conf.d/
+
+    # remove static modules
+    rm -f ${pkgdir}/${_installdir}/lib/modules/*.a
+    # remove modules provided by sub packages
+    rm -f ${pkgdir}/${_installdir}/lib/modules/{enchant,gd,imap,intl,ldap,mcrypt,mssql,odbc,pdo_odbc,pgsql,pdo_pgsql,pspell,snmp,sqlite3,pdo_sqlite,tidy,xsl}.so
+    # remove empty directory
+    rmdir ${pkgdir}/${_installdir}/include/php/include
+    # fix broken link
+    ln -sf phar.phar ${pkgdir}/${_installdir}/bin/phar
+}
+
+package_php53-opt-cgi() {
+    pkgdesc='CGI and FCGI SAPI for PHP'
+    depends=("${pkgbase}")
+
+    install -D -m755 ${srcdir}/build-cgi/sapi/cgi/php-cgi ${pkgdir}/${_installdir}/bin/php-cgi
+}
+
+package_php53-opt-apache() {
+    pkgdesc='Apache SAPI for PHP'
+    depends=("${pkgbase}" 'apache')
+    backup=("${_installdir}/etc/httpd/conf/extra/php5_module.conf")
+
+    install -D -m755 ${srcdir}/build-apache/libs/libphp5.so ${pkgdir}/${_installdir}/lib/httpd/modules/libphp5.so
+    install -D -m644 ${srcdir}/apache.conf ${pkgdir}/${_installdir}/etc/httpd/conf/extra/php5_module.conf
+}
+
+package_php53-opt-fpm() {
+    pkgdesc='FastCGI Process Manager for PHP'
+    depends=("${pkgbase}")
+    backup=("${_installdir}/etc/php-fpm.conf")
+
+    install -D -m755 ${srcdir}/build-fpm/sapi/fpm/php-fpm ${pkgdir}/${_installdir}/bin/php-fpm
+    #install -D -m644 ${srcdir}/build-fpm/sapi/fpm/php-fpm.8 ${pkgdir}/usr/share/man/man8/php-fpm.8
+    install -D -m644 ${srcdir}/build-fpm/sapi/fpm/php-fpm.conf ${pkgdir}/${_installdir}/etc/php-fpm.conf
+    install -D -m644 ${srcdir}/logrotate.d.php-fpm ${pkgdir}/etc/logrotate.d/php53-opt-fpm
+    _edit_installdir ${pkgdir}/etc/logrotate.d/php53-opt-fpm
+    install -d -m755 ${pkgdir}/${_installdir}/etc/fpm.d
+}
+
+package_php53-opt-embed() {
+    pkgdesc='Embed SAPI for PHP'
+    depends=("${pkgbase}")
+
+    install -D -m755 ${srcdir}/build-embed/libs/libphp5.so ${pkgdir}/${_installdir}/lib/libphp5.so
+    install -D -m644 ${srcdir}/${_pkgbase}-${pkgver}/sapi/embed/php_embed.h ${pkgdir}/${_installdir}/include/php/sapi/embed/php_embed.h
+}
+
+package_php53-opt-pear() {
+    pkgdesc='PHP Extension and Application Repository'
+    depends=("${pkgbase}")
+    backup=("${_installdir}/etc/pear.conf")
+
+    cd ${srcdir}/build-pear
+    make -j1 install-pear INSTALL_ROOT=${pkgdir}
+    local i
+    while read i; do
+        [ ! -e "$i" ] || rm -rf "$i"
+    done < <(find ${pkgdir} -name '.*')
+}
+
+package_php53-opt-enchant() {
+    depends=("${pkgbase}" 'enchant')
+    pkgdesc='enchant module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/enchant.so ${pkgdir}/${_installdir}/lib/modules/enchant.so
+}
+
+package_php53-opt-gd() {
+    depends=("${pkgbase}" 'libpng' 'libjpeg' 'freetype2')
+    pkgdesc='gd module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/gd.so ${pkgdir}/${_installdir}/lib/modules/gd.so
+}
+
+package_php53-opt-imap() {
+    depends=("${pkgbase}" 'c-client')
+
+    install -D -m755 ${srcdir}/build-php/modules/imap.so ${pkgdir}/${_installdir}/lib/modules/imap.so
+}
+
+package_php53-opt-intl() {
+    depends=("${pkgbase}" 'icu')
+    pkgdesc='intl module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/intl.so ${pkgdir}/${_installdir}/lib/modules/intl.so
+}
+
+package_php53-opt-ldap() {
+    depends=("${pkgbase}" 'libldap')
+    pkgdesc='ldap module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/ldap.so ${pkgdir}/${_installdir}/lib/modules/ldap.so
+}
+
+package_php53-opt-mcrypt() {
+    depends=("${pkgbase}" 'libmcrypt' 'libltdl')
+    pkgdesc='mcrypt module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/mcrypt.so ${pkgdir}/${_installdir}/lib/modules/mcrypt.so
+}
+
+package_php53-opt-mssql() {
+    depends=("${pkgbase}" 'freetds')
+    pkgdesc='mssql module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/mssql.so ${pkgdir}/${_installdir}/lib/modules/mssql.so
+}
+
+package_php53-opt-odbc() {
+    depends=("${pkgbase}" 'unixodbc')
+    pkgdesc='ODBC modules for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/odbc.so ${pkgdir}/${_installdir}/lib/modules/odbc.so
+    install -D -m755 ${srcdir}/build-php/modules/pdo_odbc.so ${pkgdir}/${_installdir}/lib/modules/pdo_odbc.so
+}
+
+package_php53-opt-pgsql() {
+    depends=("${pkgbase}" 'postgresql-libs')
+    pkgdesc='PostgreSQL modules for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/pgsql.so ${pkgdir}/${_installdir}/lib/modules/pgsql.so
+    install -D -m755 ${srcdir}/build-php/modules/pdo_pgsql.so ${pkgdir}/${_installdir}/lib/modules/pdo_pgsql.so
+}
+
+package_php53-opt-pspell() {
+    depends=("${pkgbase}" 'aspell')
+    pkgdesc='pspell module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/pspell.so ${pkgdir}/${_installdir}/lib/modules/pspell.so
+}
+
+package_php53-opt-snmp() {
+    depends=("${pkgbase}" 'net-snmp')
+    pkgdesc='snmp module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/snmp.so ${pkgdir}/${_installdir}/lib/modules/snmp.so
+}
+
+package_php53-opt-sqlite() {
+    depends=("${pkgbase}" 'sqlite')
+    pkgdesc='sqlite module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/sqlite3.so ${pkgdir}/${_installdir}/lib/modules/sqlite3.so
+    install -D -m755 ${srcdir}/build-php/modules/pdo_sqlite.so ${pkgdir}/${_installdir}/lib/modules/pdo_sqlite.so
+}
+
+package_php53-opt-tidy() {
+    depends=("${pkgbase}" 'tidyhtml')
+    pkgdesc='tidy module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/tidy.so ${pkgdir}/${_installdir}/lib/modules/tidy.so
+}
+
+package_php53-opt-xsl() {
+    depends=("${pkgbase}" 'libxslt')
+    pkgdesc='xsl module for PHP'
+    install -D -m755 ${srcdir}/build-php/modules/xsl.so ${pkgdir}/${_installdir}/lib/modules/xsl.so
+}
+
+sha1sums=('6e9e492c6d5853d063ddb9a4dbef60b8e5d87444'
+          '7b9ef5c3e0831154df0d6290aba0989ca90138ed'
+          'f3469199fdde264f00a38d78c2a737306292934c'
+          '82776db01f70b9186ba455de22eb06fe193f1d30'
+          '4b317ea8192fb97fca6eb64c2df85e414332a2e5'
+          'b6a661523535a8e7e60d4a0c054d8f6066edf63e'
+          '4d9fea0b7ab856c59ddbf722fe6c95b8e479af9b'
+          '8f19ee0e351aa2cdc9b110db4e33b4c8f6131b12'
+          'b5caa85fd1b76a3ece056ab5441852330989640b'
+          '9f2aa7c2514cb66204f9f5c3dc5f8ebdda238c78'
+          '4672c18ece397b2f99ad0c992f61220e210b2dc1'
+          '454e96af5cab1f649fceca61c0afb46ae73179f5'
+          '2f368143bcdaae4659a65103ffdeb71cac12c5cf'
+          'ede78d11b7d4d6c304253bfd358607e160a3918a'
+          'e97ea93d37ffbf6c3025281202d2e807facb4e7e'
+          '0ab48f282d62058318d08c44607aac89912f78d6'
+          'b535103d79ba9791c22a841d5d72497dec3dd93d'
+          '7cb38769807eb7d35ff7f3eaf1cce408d8ad2676'
+          '066fe3a84e1aabaf45afe26470cd769b9e3ab79a'
+          '4968abe76ab18c15f85111b3e78dba0059f948ce'
+          '18e3f12ad04adf4cc59aa5862628ab0d032c76ef'
+          '4d9551ec6c2462cde45d0e556edf6d9e792c15b4'
+          '248dc92602721c193f3906f3eb7d98cd5499ba40'
+          '40fc97494110e9b312ea0f5bade8aa0b7043f40e')
+
+# Fix for AUR
+pkgdesc='An HTML-embedded scripting language - Legacy 5.3 version'
