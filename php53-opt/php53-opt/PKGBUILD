@@ -32,7 +32,7 @@ pkgname=("${pkgbase}"
          "${pkgbase}-xsl")
 pkgver=5.3.29
 _suhosinver=5.3.9-0.9.10
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 license=('PHP')
 url='http://www.php.net'
