@@ -2,7 +2,7 @@
 # Maintainer: Dan McGee <dan@archlinux.org>
 
 pkgname=postgresql92-opt
-pkgver=9.2.14
+pkgver=9.2.19
 _majorver=${pkgver%.*}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -68,7 +68,7 @@ package() {
   install -D -m644 "${srcdir}/postgresql.logrotate" \
     "${pkgdir}/etc/logrotate.d/postgresql92-opt"
 }
-md5sums=('ce2e50565983a14995f5dbcd3c35b627'
+md5sums=('fc21c798dd284bfa440af4af51772869'
          '71c819ebf5e199ffe3a334913d367b9b'
          'b597fa32be7a917414d504ddebccf94f'
          '3b911fbf944be7029eb85e1c96a47586'
