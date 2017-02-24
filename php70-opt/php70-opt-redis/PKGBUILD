@@ -1,0 +1,30 @@
+_installdir="opt/php70"
+
+pkgname=php70-opt-redis
+_extname=redis
+pkgver=3.1.1
+pkgrel=1
+pkgdesc="PHP extension for redis"
+arch=('i686' 'x86_64')
+url="http://pecl.php.net/package/${_extname}"
+license=('PHP')
+depends=('php70-opt' 'redis')
+backup=("${_installdir}/etc/conf.d/${_extname}.ini")
+source=("http://pecl.php.net/get/${_extname}-${pkgver}.tgz")
+md5sums=('6fb69b97a7db4efb5503fa844a3193d5')
+
+build() {
+  cd "${_extname}-${pkgver}"
+
+  "/${_installdir}/bin/phpize"
+  ./configure --with-php-config="/${_installdir}/bin/php-config"
+  make
+}
+
+package() {
+  cd "${_extname}-${pkgver}"
+
+  make INSTALL_ROOT="${pkgdir}" install
+  echo "extension=${_extname}.so" > "${_extname}.ini"
+  install -D -m644 "${_extname}.ini" "${pkgdir}/${_installdir}/etc/conf.d/${_extname}.ini"
+}
