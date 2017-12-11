@@ -1,0 +1,39 @@
+_installdir="opt/php71"
+
+pkgname=php71-opt-apcu
+pkgver=5.1.8
+pkgrel=1
+arch=('i686' 'x86_64')
+pkgdesc='A userland caching module for PHP'
+url='http://pecl.php.net/package/APCu'
+depends=('php71-opt')
+provides=("php71-opt-apc=${pkgver}")
+license=('PHP')
+source=("http://pecl.php.net/get/apcu-$pkgver.tgz")
+backup=("${_installdir}/etc/conf.d/apcu.ini")
+md5sums=('0ef8be2ee8acb4dba5a66b247a254995')
+
+build() {
+    cd $srcdir/apcu-$pkgver
+    "/${_installdir}/bin/phpize"
+    ./configure --with-php-config="/${_installdir}/bin/php-config"
+    make
+}
+
+check() {
+    cd $srcdir/apcu-$pkgver
+    export REPORT_EXIT_STATUS=1
+    export NO_INTERACTION=1
+    export SKIP_ONLINE_TESTS=1
+    export SKIP_SLOW_TESTS=1
+    make test
+}
+
+package() {
+    cd $srcdir/apcu-$pkgver
+    make INSTALL_ROOT=$pkgdir install
+    echo ';extension=apcu.so' > apcu.ini
+    install -D -m644 apcu.ini $pkgdir/${_installdir}/etc/conf.d/apcu.ini
+    install -D -m644 apc.php $pkgdir/${_installdir}/share/webapps/php-apcu/apc.php
+    install -D -m644 INSTALL $pkgdir/${_installdir}/share/doc/php-apcu/install.txt
+}
