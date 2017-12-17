@@ -5,7 +5,7 @@ _installdir="opt/php56"
 
 pkgname=php56-opt-xhprof
 pkgver=0.9.4
-pkgrel=4
+pkgrel=5
 pkgdesc="A Hierarchical Profiler for PHP"
 arch=('i686' 'x86_64')
 url="http://pecl.php.net/package/xhprof"

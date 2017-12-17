@@ -5,9 +5,9 @@
 _installdir="opt/php56"
 
 pkgname=php56-opt-xdebug
-pkgver=2.3.3
-_commit=2d2bdbc7948aa72143df0c5fc0eb684078732bf9
-pkgrel=4
+pkgver=2.5.4
+_commit=48fc95c76a246d3fdc2c5410ee08bdce5f52f228
+pkgrel=1
 pkgdesc="PHP debugging extension"
 arch=('i686' 'x86_64')
 url="http://www.xdebug.org"
