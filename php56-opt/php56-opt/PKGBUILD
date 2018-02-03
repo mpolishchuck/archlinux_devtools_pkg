@@ -30,7 +30,7 @@ pkgname=("${pkgbase}"
          "${pkgbase}-sqlite"
          "${pkgbase}-tidy"
          "${pkgbase}-xsl")
-pkgver=5.6.32
+pkgver=5.6.33
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('PHP')
@@ -46,7 +46,7 @@ source=("http://php.net/distributions/${_pkgbase}-${pkgver}.tar.xz"
         'php.ini.patch' 'apache.conf' 'php-fpm.conf.in.patch'
         'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles'
         'php56-openssl11-4ca75ff1f3c341b83932f85310595f5c0a10f57e.patch')
-md5sums=('660cd5bc0f16eaad655b7815c757aadc'
+md5sums=('ca5d8f4b2b8c19519e495ecfed625ffa'
          'SKIP'
          '19e704ed442e7b9ddd7cfce3ab59ef97'
          'dec2cbaad64e3abf4f0ec70e1de4e8e9'
