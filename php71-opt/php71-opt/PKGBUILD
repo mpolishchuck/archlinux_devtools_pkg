@@ -28,8 +28,8 @@ pkgname=("${pkgbase}"
          "${pkgbase}-sqlite"
          "${pkgbase}-tidy"
          "${pkgbase}-xsl")
-pkgver=7.1.12
-pkgrel=2
+pkgver=7.1.14
+pkgrel=1
 arch=('x86_64')
 license=('PHP')
 url='http://www.php.net'
@@ -38,7 +38,7 @@ makedepends=('apache' 'aspell' 'c-client' 'db' 'enchant' 'gd' 'gmp' 'icu' 'libmc
 checkdepends=('procps-ng')
 source=("https://php.net/distributions/${_pkgbase}-${pkgver}.tar.xz"{,.asc}
         'apache.patch' 'apache.conf' 'php-fpm.patch' 'php-fpm.tmpfiles' 'php.ini.patch')
-sha256sums=('a0118850774571b1f2d4e30b4fe7a4b958ca66f07d07d65ebdc789c54ba6eeb3'
+sha256sums=('c09f0c1074f5689b492d79034adb84e6a6c6d08c6763c02282e6318d41156779'
             'SKIP'
             '258b33b6531b1128d9804c8b608b6013423a421edcf764747042d07e79ec6df3'
             'ebc0af1ef3a6baccb013d0ccb29923895a7b22ff2d032e3bba802dc6328301ce'
@@ -46,7 +46,8 @@ sha256sums=('a0118850774571b1f2d4e30b4fe7a4b958ca66f07d07d65ebdc789c54ba6eeb3'
             'b8dca8edb6b7bd72e107e1ff365f3e343f54be79359a0de4304e84c1010ef7be'
             'e44262fe594883c374fb723b1387b0609519c1b4fd1903fbba9a39ea38eb8225')
 validpgpkeys=('A917B1ECDA84AEC2B568FED6F50ABC807BD5DCD0'
-              '528995BFEDFBA7191D46839EF9BA0ADA31CBD89E')
+              '528995BFEDFBA7191D46839EF9BA0ADA31CBD89E'
+              '1729F83938DA44E27BA0F4D3DBDB397470D12172')
 
 prepare() {
 	cd ${srcdir}/${_pkgbase}-${pkgver}

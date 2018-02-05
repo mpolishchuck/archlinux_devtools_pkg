@@ -1,7 +1,7 @@
 _installdir="opt/php71"
 
 pkgname=php71-opt-xdebug
-pkgver=2.5.5
+pkgver=2.6.0
 pkgrel=1
 pkgdesc="PHP debugging extension"
 arch=('i686' 'x86_64')
@@ -13,7 +13,7 @@ backup=("${_installdir}/etc/conf.d/xdebug.ini")
 pkg_src="xdebug-${pkgver}"
 source=("https://www.xdebug.org/files/${pkg_src}.tgz"
 	'xdebug.ini')
-md5sums=('81bca42ea6a1f7080f501b00d8122a01'
+md5sums=('ed3545852e6f4a00fb8730362d0431ee'
          '0e601dfb867b248f28d6a647611e4400')
 
 build() {

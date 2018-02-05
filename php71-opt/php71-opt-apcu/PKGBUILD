@@ -1,7 +1,7 @@
 _installdir="opt/php71"
 
 pkgname=php71-opt-apcu
-pkgver=5.1.8
+pkgver=5.1.9
 pkgrel=1
 arch=('i686' 'x86_64')
 pkgdesc='A userland caching module for PHP'
@@ -11,7 +11,7 @@ provides=("php71-opt-apc=${pkgver}")
 license=('PHP')
 source=("http://pecl.php.net/get/apcu-$pkgver.tgz")
 backup=("${_installdir}/etc/conf.d/apcu.ini")
-md5sums=('0ef8be2ee8acb4dba5a66b247a254995')
+md5sums=('0d252601362c457b6651f340bd77ded0')
 
 build() {
     cd $srcdir/apcu-$pkgver
