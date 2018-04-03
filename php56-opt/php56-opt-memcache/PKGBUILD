@@ -4,7 +4,7 @@ _installdir="opt/php56"
 
 pkgname=php56-opt-memcache
 pkgver=3.0.8
-pkgrel=6
+pkgrel=7
 _commit=fdbd46bbc6f53ed6e024521895e142cbfc9b3340
 pkgdesc="Memcache module for PHP"
 arch=('i686' 'x86_64')
