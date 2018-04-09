@@ -29,7 +29,7 @@ pkgname=("${pkgbase}"
          "${pkgbase}-tidy"
          "${pkgbase}-xsl")
 pkgver=7.0.29
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 license=('PHP')
 url='http://www.php.net'
@@ -185,7 +185,7 @@ package_php70-opt() {
 	replaces=("${pkgbase}-ldap")
 	conflicts=("${pkgbase}-ldap")
 	provides=("${pkgbase}-ldap=${pkgver}")
-	backup=("${_installdir}/php/php.ini")
+	backup=("${_installdir}/etc/php.ini")
 
 	cd ${srcdir}/build
 	make -j1 INSTALL_ROOT=${pkgdir} install-{modules,cli,build,headers,programs,pharcmd}
