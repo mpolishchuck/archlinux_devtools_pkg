@@ -2,7 +2,7 @@ _installdir="opt/php70"
 
 pkgname=php70-opt-mongodb
 _extname=mongodb
-pkgver=1.4.2
+pkgver=1.5.2
 pkgrel=1
 pkgdesc="PHP extension for mongodb"
 arch=('i686' 'x86_64')
@@ -11,7 +11,7 @@ license=('PHP')
 depends=('php70-opt')
 backup=("${_installdir}/etc/conf.d/${_extname}.ini")
 source=("http://pecl.php.net/get/${_extname}-${pkgver}.tgz")
-md5sums=('28084c896be33df1ca268898646b7e32')
+md5sums=('3569a12839c9908a25dac15df1ae9d18')
 
 build() {
   cd "${_extname}-${pkgver}"
