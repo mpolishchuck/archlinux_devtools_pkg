@@ -3,7 +3,7 @@
 pkgbase = php56-opt-memcache
 	pkgdesc = Memcache module for PHP
 	pkgver = 3.0.8
-	pkgrel = 8
+	pkgrel = 9
 	url = http://pecl.php.net/package/memcache
 	arch = i686
 	arch = x86_64

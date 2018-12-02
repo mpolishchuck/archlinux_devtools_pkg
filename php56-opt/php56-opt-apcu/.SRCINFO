@@ -3,7 +3,7 @@
 pkgbase = php56-opt-apcu
 	pkgdesc = A userland caching module for PHP
 	pkgver = 4.0.11
-	pkgrel = 7
+	pkgrel = 8
 	url = http://pecl.php.net/package/APCu
 	arch = i686
 	arch = x86_64
