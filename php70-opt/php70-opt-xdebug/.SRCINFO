@@ -3,7 +3,7 @@
 pkgbase = php70-opt-xdebug
 	pkgdesc = PHP debugging extension
 	pkgver = 2.6.1
-	pkgrel = 1
+	pkgrel = 2
 	url = http://www.xdebug.org
 	arch = i686
 	arch = x86_64
