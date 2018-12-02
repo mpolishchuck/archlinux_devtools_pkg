@@ -23,7 +23,6 @@ build() {
   make
 
   cd $srcdir/${pkg_src}/debugclient
-  ./buildconf
   ./configure --prefix="/${_installdir}"
   make
 }
