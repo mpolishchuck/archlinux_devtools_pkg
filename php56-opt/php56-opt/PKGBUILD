@@ -46,7 +46,8 @@ source=("http://php.net/distributions/${_pkgbase}-${pkgver}.tar.xz"
         'php.ini.patch' 'apache.conf' 'php-fpm.conf.in.patch'
         'logrotate.d.php-fpm' 'php-fpm.service' 'php-fpm.tmpfiles'
         'php56-openssl11-4ca75ff1f3c341b83932f85310595f5c0a10f57e.patch'
-        'php56-use-enchant-2-c5c8657995ea9932005a13be70bd48c5e8935d9b.patch')
+        'php56-use-enchant-2-c5c8657995ea9932005a13be70bd48c5e8935d9b.patch'
+        'php-freetype-2.9.1.patch')
 md5sums=('8c84a9320f2d18e5c205ea4b0a30af91'
 #         'SKIP'
          '19e704ed442e7b9ddd7cfce3ab59ef97'
@@ -56,7 +57,8 @@ md5sums=('8c84a9320f2d18e5c205ea4b0a30af91'
          '8dcde21e8c876b804eb54740e42da1f3'
          '312411d43c5bbab76c2926d1ce14ed8e'
          '5003954dc2986e2875b037a1e55b694a'
-         '86c31f1eb235d83da34258b52729c79d')
+         '86c31f1eb235d83da34258b52729c79d'
+         'b40b82f55208eaead22dbfb64720b064')
 #validpgpkeys=('6E4F6AB321FDC07F2C332E3AC2BF0BC433CFC8B3'
 #              '0BD78B5F97500D450838F95DFE857D9A90D90EC1'
 #              'C2BF0BC433CFC8B3')
@@ -76,6 +78,11 @@ prepare() {
 	# thanks to Jörg Schuck for providing this patch
 	# https://gist.github.com/jschuck/5d237974e5856a221ccb347c9ccf8711
 	patch -p0 -N -l -i "${srcdir}/php56-use-enchant-2-c5c8657995ea9932005a13be70bd48c5e8935d9b.patch"
+
+	# fix compatibility with freetype >=2.9.1
+	# kudos to Brian Evans <grknight@gentoo.org>
+	# https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-lang/php/files/php-freetype-2.9.1.patch
+	patch -p1 -N -l -i "${srcdir}/php-freetype-2.9.1.patch"
 }
 
 build() {
