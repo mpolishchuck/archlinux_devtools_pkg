@@ -1,0 +1,37 @@
+_installdir="opt/php72"
+
+pkgname=php72-opt-xdebug
+pkgver=2.6.1
+pkgrel=1
+pkgdesc="PHP debugging extension"
+arch=('i686' 'x86_64')
+url="http://www.xdebug.org"
+license=('GPL')
+depends=('php72-opt')
+options=('!makeflags')
+backup=("${_installdir}/etc/conf.d/xdebug.ini")
+pkg_src="xdebug-${pkgver}"
+source=("https://www.xdebug.org/files/${pkg_src}.tgz"
+	'xdebug.ini')
+md5sums=('35cc0f2e8b7d40556a9ad9afd9c49aee'
+         '2fe9d500df531023b9e4fe44042f302c')
+
+build() {
+  cd $srcdir/${pkg_src}
+  "/${_installdir}/bin/phpize"
+  ./configure --enable-xdebug --with-php-config="/${_installdir}/bin/php-config"
+  make
+
+  cd $srcdir/${pkg_src}/debugclient
+  ./configure --prefix="/${_installdir}"
+  make
+}
+
+package() {
+  cd $srcdir/${pkg_src}/debugclient
+  make DESTDIR=$pkgdir install
+
+  cd $srcdir/${pkg_src}
+  make INSTALL_ROOT=$pkgdir install
+  install -D -m 644 $srcdir/xdebug.ini "${pkgdir}/${_installdir}/etc/conf.d/xdebug.ini"
+}

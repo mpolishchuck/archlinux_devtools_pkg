@@ -1,0 +1,350 @@
+# $Id$
+# Maintainer: Pierre Schmitz <pierre@archlinux.de>
+
+_installdir=opt/php72
+
+_edit_installdir() {
+    sed "s:@~INSTALL_DIR~@:${_installdir}:g" -i "$1"
+}
+
+pkgbase=php72-opt
+_pkgbase=${pkgbase%72-opt}
+pkgname=("${pkgbase}"
+         "${pkgbase}-cgi"
+         "${pkgbase}-apache"
+         "${pkgbase}-fpm"
+         "${pkgbase}-embed"
+         "${pkgbase}-phpdbg"
+         "${pkgbase}-dblib"
+         "${pkgbase}-enchant"
+         "${pkgbase}-gd"
+         "${pkgbase}-imap"
+         "${pkgbase}-intl"
+         "${pkgbase}-sodium"
+         "${pkgbase}-odbc"
+         "${pkgbase}-pgsql"
+         "${pkgbase}-pspell"
+         "${pkgbase}-snmp"
+         "${pkgbase}-sqlite"
+         "${pkgbase}-tidy"
+         "${pkgbase}-xsl")
+pkgver=7.2.13
+pkgrel=1
+arch=('x86_64')
+license=('PHP')
+url='http://www.php.net'
+makedepends=('apache' 'aspell' 'c-client' 'db' 'enchant' 'gd' 'gmp' 'icu' 'libsodium' 'libxslt' 'libzip' 'net-snmp'
+             'postgresql-libs' 'sqlite' 'systemd' 'tidy' 'unixodbc' 'curl' 'libtool' 'postfix' 'freetds' 'pcre')
+checkdepends=('procps-ng')
+source=("https://php.net/distributions/${_pkgbase}-${pkgver}.tar.xz"
+        'apache.patch' 'apache.conf' 'php-fpm.patch' 'php-fpm.tmpfiles' 'php.ini.patch' 'enchant-2.patch'
+        'freetype2.patch'
+       )
+sha256sums=('14b0429abdb46b65c843e5882c9a8c46b31dfbf279c747293b8ab950c2644a4b'
+            'ad75fe516609ad4df5d6258e61b236aff6fc357448862f2214e1274009f1594e'
+            'ebc0af1ef3a6baccb013d0ccb29923895a7b22ff2d032e3bba802dc6328301ce'
+            'adb38d8d86b9e3e29c3057b9c4f80383a95da7396ddbc21b7d1eecbc1c22e09e'
+            'b8dca8edb6b7bd72e107e1ff365f3e343f54be79359a0de4304e84c1010ef7be'
+            'f380448fc8bd17a4d3f02011d56c83f9a58d7a35ac8a1aa74ef8803dd2f5689a'
+            '3992491eebaf5b31f6b00095a7276d11682f9a8aaff473bfb25afbdcfa6eba32'
+            '07c4648669dc05afc3c1ad5a4739768079c423b817eabf5296ca3d1ea5ffd163')
+#validpgpkeys=('A917B1ECDA84AEC2B568FED6F50ABC807BD5DCD0'
+#              '528995BFEDFBA7191D46839EF9BA0ADA31CBD89E'
+#              '1729F83938DA44E27BA0F4D3DBDB397470D12172')
+
+prepare() {
+	cd ${srcdir}/${_pkgbase}-${pkgver}
+
+	patch -p0 -i ${srcdir}/apache.patch
+	patch -p0 -i ${srcdir}/php-fpm.patch
+	patch -p0 -i ${srcdir}/php.ini.patch
+	patch -p1 -i ${srcdir}/enchant-2.patch
+	patch -p1 -i ${srcdir}/freetype2.patch
+	autoconf
+
+	rm tests/output/stream_isatty_*.phpt
+}
+
+build() {
+	# http://site.icu-project.org/download/61#TOC-Migration-Issues
+	CPPFLAGS+=' -DU_USING_ICU_NAMESPACE=1'
+
+	local _phpconfig="--srcdir=../${_pkgbase}-${pkgver} \
+		--config-cache \
+		--prefix=/${_installdir} \
+		--with-layout=GNU \
+		--with-config-file-path=/${_installdir}/etc \
+		--with-config-file-scan-dir=/${_installdir}/etc/conf.d \
+		--disable-rpath \
+		--without-pear \
+		"
+
+	local _phpextensions="\
+		--enable-bcmath=shared \
+		--enable-calendar=shared \
+		--enable-dba=shared \
+		--enable-exif=shared \
+		--enable-ftp=shared \
+		--enable-gd-native-ttf \
+		--enable-intl=shared \
+		--enable-mbstring \
+		--enable-shmop=shared \
+		--enable-soap=shared \
+		--enable-sockets=shared \
+		--enable-sysvmsg=shared \
+		--enable-sysvsem=shared \
+		--enable-sysvshm=shared \
+		--enable-zip=shared \
+		--with-bz2=shared \
+		--with-curl=shared \
+		--with-db4=/usr \
+		--with-enchant=shared,/usr \
+		--with-freetype-dir=/usr \
+		--with-gd=shared,/usr \
+		--with-gdbm \
+		--with-gettext=shared \
+		--with-gmp=shared \
+		--with-iconv=shared \
+		--with-imap-ssl \
+		--with-imap=shared \
+		--with-kerberos=/usr \
+		--with-ldap=shared \
+		--with-ldap-sasl \
+		--with-libzip \
+		--with-mhash \
+		--with-mysql-sock=/run/mysqld/mysqld.sock \
+		--with-mysqli=shared,mysqlnd \
+		--with-openssl \
+		--with-password-argon2 \
+		--with-pcre-regex=/usr \
+		--with-pdo-dblib=shared,/usr \
+		--with-pdo-mysql=shared,mysqlnd \
+		--with-pdo-odbc=shared,unixODBC,/usr \
+		--with-pdo-pgsql=shared \
+		--with-pdo-sqlite=shared,/usr \
+		--with-pgsql=shared \
+		--with-pspell=shared \
+		--with-readline \
+		--with-snmp=shared \
+		--with-sodium=shared \
+		--with-sqlite3=shared,/usr \
+		--with-tidy=shared \
+		--with-unixODBC=shared,/usr \
+		--with-xmlrpc=shared \
+		--with-xsl=shared \
+		--with-zlib \
+		--enable-pcntl \
+		"
+
+	EXTENSION_DIR=/${_installdir}/lib/modules
+	export EXTENSION_DIR
+
+	mkdir ${srcdir}/build
+	cd ${srcdir}/build
+	ln -s ../${_pkgbase}-${pkgver}/configure
+	./configure ${_phpconfig} \
+		--enable-cgi \
+		--enable-fpm \
+		--with-fpm-systemd \
+		--with-fpm-acl \
+		--with-fpm-user=http \
+		--with-fpm-group=http \
+		--enable-embed=shared \
+		${_phpextensions}
+	make
+
+	# apache
+	# reuse the previous run; this will save us a lot of time
+	cp -a ${srcdir}/build ${srcdir}/build-apache
+	cd ${srcdir}/build-apache
+	./configure ${_phpconfig} \
+		--with-apxs2 \
+		${_phpextensions}
+	make
+
+	# phpdbg
+	cp -a ${srcdir}/build ${srcdir}/build-phpdbg
+	cd ${srcdir}/build-phpdbg
+	./configure ${_phpconfig} \
+		--enable-phpdbg \
+		${_phpextensions}
+	make
+}
+
+check() {
+	cd ${srcdir}/${_pkgbase}-${pkgver}
+
+	# Check if sendmail was configured correctly (FS#47600)
+	${srcdir}/build/sapi/cli/php -n -r 'echo ini_get("sendmail_path");' | grep -q '/usr/bin/sendmail'
+
+	export REPORT_EXIT_STATUS=1
+	export NO_INTERACTION=1
+	export SKIP_ONLINE_TESTS=1
+	export SKIP_SLOW_TESTS=1
+
+	${srcdir}/build/sapi/cli/php -n run-tests.php -n -P {tests,Zend}
+}
+
+package_php72-opt() {
+	pkgdesc='A general-purpose scripting language that is especially suited to web development'
+	depends=('libxml2' 'curl' 'libzip' 'pcre' 'argon2')
+	replaces=("${pkgbase}-ldap")
+	conflicts=("${pkgbase}-ldap")
+	provides=("${pkgbase}-ldap=${pkgver}")
+	backup=("${_installdir}/etc/php.ini")
+
+	cd ${srcdir}/build
+	make -j1 INSTALL_ROOT=${pkgdir} install-{modules,cli,build,headers,programs,pharcmd}
+	install -D -m644 ${srcdir}/${_pkgbase}-${pkgver}/php.ini-production ${pkgdir}/${_installdir}/etc/php.ini
+	_edit_installdir ${pkgdir}/${_installdir}/etc/php.ini
+	install -d -m755 ${pkgdir}/${_installdir}/etc/conf.d/
+
+	# remove static modules
+	rm -f ${pkgdir}/${_installdir}/lib/modules/*.a
+	# remove modules provided by sub packages
+	rm -f ${pkgdir}/${_installdir}/lib/modules/{enchant,gd,imap,intl,sodium,odbc,pdo_dblib,pdo_odbc,pgsql,pdo_pgsql,pspell,snmp,sqlite3,pdo_sqlite,tidy,xsl}.so
+	# remove empty directory
+	rmdir ${pkgdir}/${_installdir}/include/php/include
+}
+
+package_php72-opt-cgi() {
+	pkgdesc='CGI and FCGI SAPI for PHP'
+	depends=("${pkgbase}")
+
+	cd ${srcdir}/build
+	make -j1 INSTALL_ROOT=${pkgdir} install-cgi
+}
+
+package_php72-opt-apache() {
+	pkgdesc='Apache SAPI for PHP'
+	depends=("${pkgbase}" 'apache')
+	backup=("${_installdir}/etc/httpd/conf/extra/php7_module.conf")
+
+	install -D -m755 ${srcdir}/build-apache/libs/libphp7.so ${pkgdir}/${_installdir}/lib/httpd/modules/libphp7.so
+	install -D -m644 ${srcdir}/apache.conf ${pkgdir}/${_installdir}/etc/httpd/conf/extra/php7_module.conf
+}
+
+package_php72-opt-fpm() {
+	pkgdesc='FastCGI Process Manager for PHP'
+	depends=("${pkgbase}" 'systemd')
+	backup=("${_installdir}/etc/php-fpm.conf" "${_installdir}/etc/php-fpm.d/www.conf")
+	options=('!emptydirs')
+
+	cd ${srcdir}/build
+	make -j1 INSTALL_ROOT=${pkgdir} install-fpm
+	install -D -m644 sapi/fpm/php-fpm.service ${pkgdir}/usr/lib/systemd/system/php72-opt-fpm.service
+	install -D -m644 ${srcdir}/php-fpm.tmpfiles ${pkgdir}/usr/lib/tmpfiles.d/php72-opt-fpm.conf
+	_edit_installdir ${pkgdir}/usr/lib/tmpfiles.d/php72-opt-fpm.conf
+}
+
+package_php72-opt-embed() {
+	pkgdesc='Embedded PHP SAPI library'
+	depends=("${pkgbase}" 'libsystemd')
+	options=('!emptydirs')
+
+	cd ${srcdir}/build
+	make -j1 INSTALL_ROOT=${pkgdir} PHP_SAPI=embed install-sapi
+}
+
+package_php72-opt-phpdbg() {
+	pkgdesc='Interactive PHP debugger'
+	depends=("${pkgbase}")
+	options=('!emptydirs')
+
+	cd ${srcdir}/build-phpdbg
+	make -j1 INSTALL_ROOT=${pkgdir} install-phpdbg
+}
+
+package_php72-opt-dblib() {
+	pkgdesc='dblib module for PHP'
+	depends=("${pkgbase}" 'freetds')
+
+	install -D -m755 ${srcdir}/build/modules/pdo_dblib.so ${pkgdir}/${_installdir}/lib/modules/pdo_dblib.so
+}
+
+package_php72-opt-enchant() {
+	pkgdesc='enchant module for PHP'
+	depends=("${pkgbase}" 'enchant')
+
+	install -D -m755 ${srcdir}/build/modules/enchant.so ${pkgdir}/${_installdir}/lib/modules/enchant.so
+}
+
+package_php72-opt-gd() {
+	pkgdesc='gd module for PHP'
+	depends=("${pkgbase}" 'gd')
+
+	install -D -m755 ${srcdir}/build/modules/gd.so ${pkgdir}/${_installdir}/lib/modules/gd.so
+}
+
+package_php72-opt-imap() {
+	pkgdesc='imap module for PHP'
+	depends=("${pkgbase}" 'c-client')
+
+	install -D -m755 ${srcdir}/build/modules/imap.so ${pkgdir}/${_installdir}/lib/modules/imap.so
+}
+
+package_php72-opt-intl() {
+	pkgdesc='intl module for PHP'
+	depends=("${pkgbase}" 'icu')
+
+	install -D -m755 ${srcdir}/build/modules/intl.so ${pkgdir}/${_installdir}/lib/modules/intl.so
+}
+
+package_php72-opt-sodium() {
+	pkgdesc='mcrypt module for PHP'
+	depends=("${pkgbase}" 'libsodium')
+
+	install -D -m755 ${srcdir}/build/modules/sodium.so ${pkgdir}/${_installdir}/lib/modules/sodium.so
+}
+
+package_php72-opt-odbc() {
+	pkgdesc='ODBC modules for PHP'
+	depends=("${pkgbase}" 'unixodbc')
+
+	install -D -m755 ${srcdir}/build/modules/odbc.so ${pkgdir}/${_installdir}/lib/modules/odbc.so
+	install -D -m755 ${srcdir}/build/modules/pdo_odbc.so ${pkgdir}/${_installdir}/lib/modules/pdo_odbc.so
+}
+
+package_php72-opt-pgsql() {
+	pkgdesc='PostgreSQL modules for PHP'
+	depends=("${pkgbase}" 'postgresql-libs')
+
+	install -D -m755 ${srcdir}/build/modules/pgsql.so ${pkgdir}/${_installdir}/lib/modules/pgsql.so
+	install -D -m755 ${srcdir}/build/modules/pdo_pgsql.so ${pkgdir}/${_installdir}/lib/modules/pdo_pgsql.so
+}
+
+package_php72-opt-pspell() {
+	pkgdesc='pspell module for PHP'
+	depends=("${pkgbase}" 'aspell')
+
+	install -D -m755 ${srcdir}/build/modules/pspell.so ${pkgdir}/${_installdir}/lib/modules/pspell.so
+}
+
+package_php72-opt-snmp() {
+	pkgdesc='snmp module for PHP'
+	depends=("${pkgbase}" 'net-snmp')
+
+	install -D -m755 ${srcdir}/build/modules/snmp.so ${pkgdir}/${_installdir}/lib/modules/snmp.so
+}
+
+package_php72-opt-sqlite() {
+	pkgdesc='sqlite module for PHP'
+	depends=("${pkgbase}" 'sqlite')
+
+	install -D -m755 ${srcdir}/build/modules/sqlite3.so ${pkgdir}/${_installdir}/lib/modules/sqlite3.so
+	install -D -m755 ${srcdir}/build/modules/pdo_sqlite.so ${pkgdir}/${_installdir}/lib/modules/pdo_sqlite.so
+}
+
+package_php72-opt-tidy() {
+	pkgdesc='tidy module for PHP'
+	depends=("${pkgbase}" 'tidy')
+
+	install -D -m755 ${srcdir}/build/modules/tidy.so ${pkgdir}/${_installdir}/lib/modules/tidy.so
+}
+
+package_php72-opt-xsl() {
+	pkgdesc='xsl module for PHP'
+	depends=("${pkgbase}" 'libxslt')
+
+	install -D -m755 ${srcdir}/build/modules/xsl.so ${pkgdir}/${_installdir}/lib/modules/xsl.so
+}
