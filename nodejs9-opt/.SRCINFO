@@ -3,7 +3,7 @@
 pkgbase = nodejs9-opt
 	pkgdesc = Evented I/O for V8 javascript
 	pkgver = 9.11.2
-	pkgrel = 1
+	pkgrel = 2
 	url = http://nodejs.org/
 	arch = x86_64
 	license = MIT
