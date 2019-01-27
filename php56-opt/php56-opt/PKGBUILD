@@ -30,7 +30,7 @@ pkgname=("${pkgbase}"
          "${pkgbase}-sqlite"
          "${pkgbase}-tidy"
          "${pkgbase}-xsl")
-pkgver=5.6.39
+pkgver=5.6.40
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('PHP')
@@ -48,7 +48,7 @@ source=("http://php.net/distributions/${_pkgbase}-${pkgver}.tar.xz"
         'php56-openssl11-4ca75ff1f3c341b83932f85310595f5c0a10f57e.patch'
         'php56-use-enchant-2-c5c8657995ea9932005a13be70bd48c5e8935d9b.patch'
         'php-freetype-2.9.1.patch')
-md5sums=('a29e684cff01ae3baf05fe97cb4d50c0'
+md5sums=('c7dde3afb16ce7b761abf2805125d372'
 #         'SKIP'
          '19e704ed442e7b9ddd7cfce3ab59ef97'
          'dec2cbaad64e3abf4f0ec70e1de4e8e9'
