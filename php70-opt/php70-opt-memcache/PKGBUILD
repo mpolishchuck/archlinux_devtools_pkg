@@ -4,7 +4,7 @@ _installdir="opt/php70"
 
 pkgname=php70-opt-memcache
 pkgver=3.0.8
-pkgrel=10
+pkgrel=11
 _commit=fdbd46bbc6f53ed6e024521895e142cbfc9b3340
 pkgdesc="Memcache module for PHP"
 arch=('i686' 'x86_64')

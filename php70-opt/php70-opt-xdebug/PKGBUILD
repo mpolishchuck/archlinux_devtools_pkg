@@ -2,7 +2,7 @@ _installdir="opt/php70"
 
 pkgname=php70-opt-xdebug
 pkgver=2.6.1
-pkgrel=3
+pkgrel=4
 pkgdesc="PHP debugging extension"
 arch=('i686' 'x86_64')
 url="http://www.xdebug.org"
