@@ -1,0 +1,35 @@
+_installdir="opt/php72"
+
+pkgname=php72-opt-tideways-xhprof
+pkgver=5.0BETA3
+pkgrel=1
+_commit=afc61bd1e3336ef207247c5e92ae6b5dab0a6e1c
+pkgdesc="Tideways xhprof extension"
+arch=('i686' 'x86_64')
+url="https://tideways.com/"
+license=('PHP')
+depends=('php72-opt')
+makedepends=('git')
+checkdepends=('')
+backup=("${_installdir}/etc/conf.d/tideways_xhprof.ini")
+#source=(https://pecl.php.net/get/memcache-$pkgver.tgz)
+source=("git+https://github.com/tideways/php-xhprof-extension.git#commit=$_commit")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/php-xhprof-extension"
+
+  "/${_installdir}/bin/phpize"
+  ./configure --with-php-config="/${_installdir}/bin/php-config"
+  make
+}
+
+package() {
+  cd "$srcdir/php-xhprof-extension"
+
+  make INSTALL_ROOT="$pkgdir" install
+  echo ';extension=tideways_xhprof.so' >tideways_xhprof.ini
+  install -Dm644 tideways_xhprof.ini "$pkgdir/${_installdir}/etc/conf.d/tideways_xhprof.ini"
+}
+
+# vim:set ts=2 sw=2 et:
