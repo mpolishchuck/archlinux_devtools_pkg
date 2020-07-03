@@ -31,7 +31,7 @@ prepare() {
   #   ini_set('session.save_handler') [tests/036.phpt]
   #   ini_set('memcache.session_redundancy') [tests/044.phpt]
   #   ini_set('session.save_handler') with unix domain socket [tests/053.phpt]
-  rm tests/{005,036,040,042,044,053,057}.phpt
+  rm tests/{005,033,036,040,042,044,053,057}.phpt
 }
 
 build() {

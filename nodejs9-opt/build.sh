@@ -1,3 +1,6 @@
 #!/bin/sh
 
-makepkg && makepkg --source || exit 1
+set -xe
+
+makepkg
+makepkg --source

@@ -10,7 +10,6 @@ url="https://tideways.com/"
 license=('PHP')
 depends=('php71-opt')
 makedepends=('git')
-checkdepends=('')
 backup=("${_installdir}/etc/conf.d/tideways_xhprof.ini")
 #source=(https://pecl.php.net/get/memcache-$pkgver.tgz)
 source=("git+https://github.com/tideways/php-xhprof-extension.git#commit=$_commit")
