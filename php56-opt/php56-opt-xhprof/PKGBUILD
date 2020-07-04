@@ -5,7 +5,7 @@ _installdir="opt/php56"
 
 pkgname=php56-opt-xhprof
 pkgver=0.9.4
-pkgrel=13
+pkgrel=14
 pkgdesc="A Hierarchical Profiler for PHP"
 arch=('i686' 'x86_64')
 url="http://pecl.php.net/package/xhprof"
@@ -30,7 +30,7 @@ build() {
   make || return 1
 }
 
-package() { 
+package() {
   cd "$srcdir/xhprof-$pkgver/extension/"
   make INSTALL_ROOT="$pkgdir/" install
   echo ';extension=xhprof.so' > xhprof.ini

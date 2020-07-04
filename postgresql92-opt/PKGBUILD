@@ -4,7 +4,7 @@
 pkgname=postgresql92-opt
 pkgver=9.2.24
 _majorver=${pkgver%.*}
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 url="http://www.postgresql.org/"
 license=('custom:PostgreSQL')

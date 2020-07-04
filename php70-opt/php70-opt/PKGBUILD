@@ -29,7 +29,7 @@ pkgname=("${pkgbase}"
          "${pkgbase}-tidy"
          "${pkgbase}-xsl")
 pkgver=7.0.33
-pkgrel=3
+pkgrel=4
 arch=('i686' 'x86_64')
 license=('PHP')
 url='http://www.php.net'

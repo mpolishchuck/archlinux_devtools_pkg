@@ -2,7 +2,7 @@ _installdir="opt/php71"
 
 pkgname=php71-opt-tideways-xhprof
 pkgver=5.0BETA3
-pkgrel=2
+pkgrel=3
 _commit=afc61bd1e3336ef207247c5e92ae6b5dab0a6e1c
 pkgdesc="Tideways xhprof extension"
 arch=('i686' 'x86_64')
