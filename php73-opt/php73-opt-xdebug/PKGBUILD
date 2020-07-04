@@ -1,0 +1,38 @@
+_installdir="opt/php73"
+
+pkgname=php73-opt-xdebug
+pkgver=2.9.6
+pkgrel=1
+pkgdesc="PHP debugging extension"
+arch=('i686' 'x86_64')
+url="http://www.xdebug.org"
+license=('GPL')
+depends=('php73-opt')
+options=('!makeflags')
+backup=("${_installdir}/etc/conf.d/xdebug.ini")
+pkg_src="xdebug-${pkgver}"
+source=("https://www.xdebug.org/files/${pkg_src}.tgz"
+	'xdebug.ini')
+md5sums=('ee9fdb480d5a3f9edd8f4c6f465f4df9'
+         '2fe9d500df531023b9e4fe44042f302c')
+
+build() {
+  cd $srcdir/${pkg_src}
+  "/${_installdir}/bin/phpize"
+  ./configure --enable-xdebug --with-php-config="/${_installdir}/bin/php-config"
+  make
+
+  cd $srcdir/${pkg_src}/debugclient
+  ./buildconf
+  ./configure --with-libedit --prefix="/${_installdir}"
+  make
+}
+
+package() {
+  cd $srcdir/${pkg_src}/debugclient
+  install -D -m 755 debugclient "${pkgdir}/${_installdir}/bin/debugclient"
+
+  cd $srcdir/${pkg_src}
+  make INSTALL_ROOT=$pkgdir install
+  install -D -m 644 $srcdir/xdebug.ini "${pkgdir}/${_installdir}/etc/conf.d/xdebug.ini"
+}
