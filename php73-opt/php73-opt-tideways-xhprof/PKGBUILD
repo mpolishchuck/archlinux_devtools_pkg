@@ -1,9 +1,9 @@
 _installdir="opt/php73"
 
 pkgname=php73-opt-tideways-xhprof
-pkgver=5.0.2
-pkgrel=2
-_commit=97c780dc2cc905fded6d99bbe22eaf2c400a1aa0
+pkgver=5.0.4
+pkgrel=1
+_commit=ab391914cd59b95ea1a6904eacad6960a696a50b
 pkgdesc="Tideways xhprof extension"
 arch=('i686' 'x86_64')
 url="https://tideways.com/"

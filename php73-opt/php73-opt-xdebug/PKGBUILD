@@ -1,8 +1,8 @@
 _installdir="opt/php73"
 
 pkgname=php73-opt-xdebug
-pkgver=2.9.6
-pkgrel=2
+pkgver=2.9.8
+pkgrel=1
 pkgdesc="PHP debugging extension"
 arch=('i686' 'x86_64')
 url="http://www.xdebug.org"
@@ -13,7 +13,7 @@ backup=("${_installdir}/etc/conf.d/xdebug.ini")
 pkg_src="xdebug-${pkgver}"
 source=("https://www.xdebug.org/files/${pkg_src}.tgz"
 	'xdebug.ini')
-md5sums=('ee9fdb480d5a3f9edd8f4c6f465f4df9'
+md5sums=('a2b5199f11457099d5c81d02ababb87e'
          '2fe9d500df531023b9e4fe44042f302c')
 
 build() {
