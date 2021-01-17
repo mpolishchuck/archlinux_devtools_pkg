@@ -10,7 +10,7 @@
 
 pkgname=nodejs9-opt
 pkgver=9.11.2
-pkgrel=3
+pkgrel=5
 pkgdesc='Evented I/O for V8 javascript'
 arch=('x86_64')
 url='http://nodejs.org/'
@@ -37,6 +37,9 @@ prepare() {
 build() {
   cd node-$pkgver
 
+  # http://site.icu-project.org/download/68#TOC-Migration-Issues
+  CPPFLAGS+=' -DU_DEFINE_FALSE_AND_TRUE=1'
+
   export PKG_CONFIG_PATH=/usr/lib/openssl-1.0/pkgconfig
   export PYTHON=python2
   ./configure \
@@ -61,6 +64,10 @@ check() {
 
 package() {
   cd node-$pkgver
+
+  # http://site.icu-project.org/download/68#TOC-Migration-Issues
+  # Also needed for install phase since NodeJS always follows it's practices ;)
+  CPPFLAGS+=' -DU_DEFINE_FALSE_AND_TRUE=1'
 
   make DESTDIR="$pkgdir" install
 }
