@@ -1,0 +1,58 @@
+pkgname=nodejs12-opt
+pkgver=12.20.1
+pkgrel=1
+pkgdesc='Evented I/O for V8 javascript'
+arch=('x86_64')
+url='http://nodejs.org/'
+license=('MIT')
+depends=('openssl' 'zlib' 'icu' 'libuv' 'c-ares' 'brotli' 'libnghttp2') # 'v8')
+makedepends=('python2' 'procps-ng')
+source=("nodejs-$pkgver.tar.gz::https://github.com/nodejs/node/archive/v$pkgver.tar.gz")
+sha512sums=('335fa8cdda37d7e19244f6212dab52ab9e4671ff2e0bab612b1cb16281ab0a7f89c7dbfc8dfa723babdfd2b92e92554b38399ec681d117209dd250d286f6bc4d')
+
+prepare() {
+  cd node-$pkgver
+
+  msg 'Fixing for python2 name'
+  find -type f -exec sed \
+    -e 's_^#!/usr/bin/env python$_&2_' \
+    -e 's_^\(#!/usr/bin/python2\).[45]$_\1_' \
+    -e 's_^#!/usr/bin/python$_&2_' \
+    -e 's_^\( *exec \+\)python\( \+.*\)$_\1python2\2_'\
+    -e 's_^\(.*\)python\( \+-c \+.*\)$_\1python2\2_'\
+    -e "s_'python'_'python2'_" -i {} \;
+  find test/ -type f -exec sed 's_python _python2 _' -i {} \;
+}
+
+build() {
+  cd node-$pkgver
+
+  export PYTHON=python2
+  ./configure \
+    --prefix=/opt/nodejs12 \
+    --with-intl=system-icu \
+    --shared-openssl \
+    --shared-zlib \
+    --shared-libuv \
+    --experimental-http-parser \
+    --shared-cares \
+    --shared-brotli \
+    --shared-nghttp2
+    # --shared-v8
+
+  make
+}
+
+check() {
+  cd node-$pkgver
+  # Expected failure: https://github.com/nodejs/node/issues/11627
+  make test || warning "Tests failed"
+}
+
+package() {
+  cd node-$pkgver
+
+  make DESTDIR="$pkgdir" install
+}
+
+# vim:set ts=2 sw=2 et:
