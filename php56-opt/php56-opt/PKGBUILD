@@ -31,7 +31,7 @@ pkgname=("${pkgbase}"
          "${pkgbase}-tidy"
          "${pkgbase}-xsl")
 pkgver=5.6.40
-pkgrel=4
+pkgrel=6
 arch=('i686' 'x86_64')
 license=('PHP')
 url='http://php.net'
@@ -88,6 +88,8 @@ prepare() {
 build() {
 	# http://site.icu-project.org/download/61#TOC-Migration-Issues
 	CPPFLAGS+=' -DU_USING_ICU_NAMESPACE=1'
+	# http://site.icu-project.org/download/68#TOC-Migration-Issues
+	CPPFLAGS+=' -DU_DEFINE_FALSE_AND_TRUE=1'
 
 	local _phpconfig="--srcdir=../${_pkgbase}-${pkgver} \
 		--config-cache \
