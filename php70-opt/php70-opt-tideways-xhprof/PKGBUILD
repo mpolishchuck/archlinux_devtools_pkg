@@ -1,9 +1,9 @@
 _installdir="opt/php70"
 
 pkgname=php70-opt-tideways-xhprof
-pkgver=5.0BETA3
-pkgrel=3
-_commit=afc61bd1e3336ef207247c5e92ae6b5dab0a6e1c
+pkgver=5.0.4
+pkgrel=1
+_commit=ab391914cd59b95ea1a6904eacad6960a696a50b
 pkgdesc="Tideways xhprof extension"
 arch=('i686' 'x86_64')
 url="https://tideways.com/"

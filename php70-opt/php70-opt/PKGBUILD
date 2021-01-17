@@ -29,7 +29,7 @@ pkgname=("${pkgbase}"
          "${pkgbase}-tidy"
          "${pkgbase}-xsl")
 pkgver=7.0.33
-pkgrel=4
+pkgrel=6
 arch=('i686' 'x86_64')
 license=('PHP')
 url='http://www.php.net'
@@ -68,6 +68,9 @@ prepare() {
 }
 
 build() {
+	# http://site.icu-project.org/download/68#TOC-Migration-Issues
+	CPPFLAGS+=' -DU_DEFINE_FALSE_AND_TRUE=1'
+
 	local _phpconfig="--srcdir=../${_pkgbase}-${pkgver} \
 		--config-cache \
 		--prefix=/${_installdir} \
